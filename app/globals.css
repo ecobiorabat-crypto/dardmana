@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Dar Dmana — Design System (références : Rolex.com + Louis Vuitton)
+   Aucune couleur ne doit être codée en dur dans les composants :
+   toujours référencer ces variables CSS.
+   ========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Palette */
+  --vert-fonce: #1a5c2a;
+  --vert-moyen: #2d8c3e;
+  --or-royal: #c9a84c;
+  --or-clair: #e8c97a;
+  --creme: #faf6ef;
+  --gris-perle: #f0ece4;
+
+  /* Neutres dérivés */
+  --noir: #14130f;
+  --blanc: #ffffff;
+  --texte: #2a2620;
+  --texte-doux: #6b6457;
+  --bordure: #e3ddd1;
+
+  /* Sémantique (toasts, états) */
+  --succes: var(--vert-moyen);
+  --erreur: #b3261e;
+  --info: var(--vert-fonce);
+  --alerte: #c97a2d;
+
+  /* Overlays */
+  --overlay: rgba(20, 19, 15, 0.55);
+
+  /* Aliases applicatifs */
+  --background: var(--blanc);
+  --foreground: var(--texte);
+
+  /* Polices (injectées via next/font dans layout.tsx) */
+  --font-titre: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-corps: var(--font-jost), system-ui, -apple-system, sans-serif;
 }
 
+/* Exposition des tokens à Tailwind v4 (utilitaires bg-*, text-*, font-*) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-vert-fonce: var(--vert-fonce);
+  --color-vert-moyen: var(--vert-moyen);
+  --color-or-royal: var(--or-royal);
+  --color-or-clair: var(--or-clair);
+  --color-creme: var(--creme);
+  --color-gris-perle: var(--gris-perle);
+  --color-noir: var(--noir);
+  --color-blanc: var(--blanc);
+  --color-texte: var(--texte);
+  --color-texte-doux: var(--texte-doux);
+  --color-bordure: var(--bordure);
+  --color-succes: var(--succes);
+  --color-erreur: var(--erreur);
+  --color-info: var(--info);
+  --color-alerte: var(--alerte);
+
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-corps);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-titre);
+}
+
+/* Utilitaires font-famille (Tailwind v4 : font-[var()] génère font-weight, pas font-family) */
+@utility font-titre {
+  font-family: var(--font-titre);
+}
+@utility font-corps {
+  font-family: var(--font-corps);
+}
+
+/* ==========================================================================
+   Animations partagées
+   ========================================================================== */
+@keyframes dd-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes dd-shimmer {
+  0% { background-position: -150% 0; }
+  100% { background-position: 150% 0; }
+}
+
+/* Conserve la compat avec l'ancien nom utilisé ailleurs */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Surface skeleton avec balayage doux */
+.dd-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--gris-perle) 0%,
+    var(--creme) 50%,
+    var(--gris-perle) 100%
+  );
+  background-size: 200% 100%;
+  animation: dd-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-shimmer {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Support RTL (arabe) — mise en miroir contrôlée de la mise en page
+   ========================================================================== */
+/* Le texte hérite de l'alignement « start » (= droite en RTL) depuis la racine.
+   On NE force PAS text-align sur h1/p/li : cela écraserait l'héritage de
+   `text-center` (titres centrés mal alignés en RTL). Les utilitaires Tailwind
+   (text-center / text-start / text-end) restent ainsi prioritaires. */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Garantit le centrage explicite même face à d'éventuelles règles d'éléments. */
+[dir="rtl"] .text-center {
+  text-align: center;
+}
+
+/* Icônes directionnelles (flèches, chevrons) : ajouter la classe rtl-flip */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Les puces de liste passent à droite */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.25rem;
+  padding-left: 0;
+}
+
+/* Inversion des marges/paddings latéraux usuels via propriétés logiques.
+   Tailwind v4 supporte les utilitaires logiques (ps-/pe-, ms-/me-) ; pour le
+   code existant en propriétés physiques, on rétablit un comportement cohérent. */
+[dir="rtl"] .ml-auto { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .mr-auto { margin-right: 0; margin-left: auto; }
+
+/* Champs de formulaire : le texte saisi suit la direction */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="url"] {
+  direction: ltr;
+  text-align: right;
 }
