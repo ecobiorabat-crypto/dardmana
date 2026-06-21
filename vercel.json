@@ -1,9 +1,6 @@
 {
   "framework": "nextjs",
   "regions": ["cdg1"],
-  "crons": [
-    { "path": "/api/cron/abandoned-cart-reminders", "schedule": "0 * * * *" }
-  ],
   "headers": [
     {
       "source": "/api/webhooks/(.*)",
