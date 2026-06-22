@@ -21,10 +21,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Paramètres invalides', details: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { categorySlug, minPrice, maxPrice, status, isFeatured, isNew, search, page, limit, sortBy, sortOrder } = parsed.data
+    const { categorySlug, minPrice, maxPrice, status, isFeatured, isNew, ids, search, page, limit, sortBy, sortOrder } = parsed.data
+
+    const idList = ids ? ids.split(',').map((s) => s.trim()).filter(Boolean) : []
 
     const where: Prisma.ProductWhereInput = {
       status: status ?? 'ACTIVE',
+      ...(idList.length > 0 && { id: { in: idList } }),
       ...(categorySlug && { category: { slug: categorySlug } }),
       ...(minPrice !== undefined && { priceMad: { gte: minPrice } }),
       ...(maxPrice !== undefined && { priceMad: { lte: maxPrice } }),

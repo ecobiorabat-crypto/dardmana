@@ -6,8 +6,14 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils/cn'
 
-export function Newsletter() {
+export interface NewsletterProps {
+  /** Override CMS du titre (sinon repli sur la traduction). */
+  titleOverride?: string
+}
+
+export function Newsletter({ titleOverride }: NewsletterProps = {}) {
   const t = useTranslations('Newsletter')
+  const title = titleOverride?.trim() || t('title')
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
@@ -24,7 +30,7 @@ export function Newsletter() {
           {t('eyebrow')}
         </p>
         <h2 className="font-titre text-3xl sm:text-4xl">
-          {t('title')}
+          {title}
         </h2>
         <p className="mx-auto mt-4 max-w-md text-sm text-[var(--creme)]/75">
           {t('subtitle')}

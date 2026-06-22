@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { getSiteSettings } from '@/lib/settings'
+import { getHomepageSettings } from '@/lib/homepage'
+import { pickLocale } from '@/lib/cms'
 import { AnnouncementBar } from '@/components/layout/AnnouncementBar'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -43,14 +45,19 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale)
   const messages = await getMessages()
-  const settings = await getSiteSettings()
+  const [settings, homepage] = await Promise.all([getSiteSettings(), getHomepageSettings()])
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
+
+  // Bandeau d'annonce piloté par l'admin (texte localisé + activation).
+  const announcement = pickLocale(homepage, 'announcementText', locale)
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div lang={locale} dir={dir} className="flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-[100]">
-          <AnnouncementBar />
+          {homepage.announcementActive && (
+            <AnnouncementBar message={announcement || undefined} />
+          )}
           <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
         </div>
 
@@ -58,7 +65,18 @@ export default async function LocaleLayout({
           <PageTransition>{children}</PageTransition>
         </main>
 
-        <Footer logoUrl={settings.logoUrl} siteName={settings.siteName} />
+        <Footer
+          logoUrl={settings.logoUrl}
+          siteName={settings.siteName}
+          phone={settings.phone}
+          email={settings.email}
+          address={settings.address}
+          social={{
+            instagram: settings.socialInstagram,
+            facebook: settings.socialFacebook,
+            tiktok: settings.socialTikTok,
+          }}
+        />
         <CursorEffect />
         <Toast />
         <MetaPixel />

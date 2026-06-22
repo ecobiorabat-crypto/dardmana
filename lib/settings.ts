@@ -7,6 +7,13 @@ export interface SiteSettingsData {
   logoUrl: string | null
   logoUrlDark: string | null
   faviconUrl: string | null
+  phone: string | null
+  whatsapp: string | null
+  address: string | null
+  email: string | null
+  socialInstagram: string | null
+  socialFacebook: string | null
+  socialTikTok: string | null
 }
 
 const DEFAULTS: SiteSettingsData = {
@@ -14,6 +21,13 @@ const DEFAULTS: SiteSettingsData = {
   logoUrl: null,
   logoUrlDark: null,
   faviconUrl: null,
+  phone: null,
+  whatsapp: null,
+  address: null,
+  email: null,
+  socialInstagram: null,
+  socialFacebook: null,
+  socialTikTok: null,
 }
 
 /**
@@ -29,6 +43,13 @@ export async function getSiteSettings(): Promise<SiteSettingsData> {
       logoUrl: row.logoUrl,
       logoUrlDark: row.logoUrlDark,
       faviconUrl: row.faviconUrl,
+      phone: row.phone,
+      whatsapp: row.whatsapp,
+      address: row.address,
+      email: row.email,
+      socialInstagram: row.socialInstagram,
+      socialFacebook: row.socialFacebook,
+      socialTikTok: row.socialTikTok,
     }
   } catch {
     return DEFAULTS
@@ -37,6 +58,19 @@ export async function getSiteSettings(): Promise<SiteSettingsData> {
 
 /** Crée ou met à jour le singleton de configuration. */
 export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
+  // N'écrit que les champs explicitement fournis (les autres gardent leur valeur).
+  const fields = [
+    'logoUrl', 'logoUrlDark', 'faviconUrl',
+    'phone', 'whatsapp', 'address', 'email',
+    'socialInstagram', 'socialFacebook', 'socialTikTok',
+  ] as const
+
+  const update: Record<string, unknown> = {}
+  if (data.siteName !== undefined) update.siteName = data.siteName
+  for (const f of fields) {
+    if (data[f] !== undefined) update[f] = data[f] ?? null
+  }
+
   return prisma.siteSettings.upsert({
     where: { id: SINGLETON_ID },
     create: {
@@ -45,12 +79,14 @@ export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
       logoUrl: data.logoUrl ?? null,
       logoUrlDark: data.logoUrlDark ?? null,
       faviconUrl: data.faviconUrl ?? null,
+      phone: data.phone ?? null,
+      whatsapp: data.whatsapp ?? null,
+      address: data.address ?? null,
+      email: data.email ?? null,
+      socialInstagram: data.socialInstagram ?? null,
+      socialFacebook: data.socialFacebook ?? null,
+      socialTikTok: data.socialTikTok ?? null,
     },
-    update: {
-      ...(data.siteName !== undefined && { siteName: data.siteName }),
-      ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
-      ...(data.logoUrlDark !== undefined && { logoUrlDark: data.logoUrlDark }),
-      ...(data.faviconUrl !== undefined && { faviconUrl: data.faviconUrl }),
-    },
+    update,
   })
 }

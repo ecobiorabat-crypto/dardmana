@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
 import { Button } from '@/components/ui/Button'
+import { Markdown } from '@/components/ui/Markdown'
 import { localizedHref } from '@/lib/utils/locale'
 import { routing } from '@/i18n/routing'
+import { getPublishedCmsPage, pickLocale } from '@/lib/cms'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
 
@@ -78,6 +80,47 @@ export default async function NotreHistoirePage({
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations('History')
+
+  // Contenu géré via l'admin (CMS). Si la page est publiée, on l'affiche ;
+  // sinon on retombe sur le contenu éditorial intégré ci-dessous.
+  const cms = await getPublishedCmsPage('notre-histoire')
+  if (cms) {
+    const title = pickLocale(cms, 'title', locale)
+    const content = pickLocale(cms, 'content', locale)
+    return (
+      <div className="pb-20">
+        <section className="relative flex min-h-[50vh] items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--vert-fonce)] via-[var(--vert-moyen)] to-[var(--vert-fonce)] px-4 pt-28 pb-16 text-center sm:px-6 lg:pt-32">
+          <Reveal direction="up" className="relative">
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.32em] text-[var(--or-clair)]">
+              {t('heroEyebrow')}
+            </p>
+            <h1 className="font-titre text-5xl text-[var(--creme)] sm:text-6xl">{title}</h1>
+          </Reveal>
+        </section>
+
+        <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <Reveal>
+            <Markdown content={content} />
+          </Reveal>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="bg-[var(--vert-fonce)] px-8 py-16 text-center">
+              <h2 className="mx-auto max-w-2xl font-titre text-3xl text-[var(--creme)] sm:text-4xl">
+                {t('ctaTitle')}
+              </h2>
+              <div className="mt-8 flex justify-center">
+                <Button href={localizedHref(locale, '/collections')} variant="gold" size="lg">
+                  {t('ctaButton')}
+                </Button>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+      </div>
+    )
+  }
 
   const craftSteps = [
     { icon: ICONS.leaf, title: t('craft1Title'), desc: t('craft1Desc') },

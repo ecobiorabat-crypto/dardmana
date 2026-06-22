@@ -33,43 +33,31 @@ const COLUMNS: FooterColumn[] = [
   },
 ]
 
-const SOCIALS = [
-  {
-    label: 'Instagram',
-    href: 'https://instagram.com',
-    icon: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.4" />
-        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.4" />
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
-      </>
-    ),
-  },
-  {
-    label: 'Facebook',
-    href: 'https://facebook.com',
-    icon: (
-      <path
-        d="M14 8.5h2V5.5h-2.2C11.7 5.5 10.5 7 10.5 9v1.5H8.5v3h2V21h3v-7.5h2.2l.3-3h-2.5V9c0-.4.2-.5.5-.5z"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    label: 'WhatsApp',
-    href: 'https://wa.me/',
-    icon: (
-      <path
-        d="M4 20l1.3-3.8A7.5 7.5 0 1118.5 19a7.6 7.6 0 01-5.5 1.1L4 20z M9 9.5c0 4 3 6 5.5 6 .8 0 1.5-.6 1.7-1.2.1-.3 0-.5-.2-.6l-1.5-.7c-.2-.1-.4 0-.6.2l-.4.5c-1-.4-1.8-1.2-2.2-2.2l.5-.4c.2-.2.3-.4.2-.6l-.7-1.5c-.1-.2-.3-.3-.6-.2-.6.2-1.2.9-1.2 1.7z"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-]
+const SOCIAL_ICONS = {
+  instagram: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+    </>
+  ),
+  facebook: (
+    <path
+      d="M14 8.5h2V5.5h-2.2C11.7 5.5 10.5 7 10.5 9v1.5H8.5v3h2V21h3v-7.5h2.2l.3-3h-2.5V9c0-.4.2-.5.5-.5z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+  ),
+  tiktok: (
+    <path
+      d="M14 4c.3 2.1 1.6 3.5 3.7 3.8v2.3c-1.3.1-2.5-.3-3.7-1v4.8a4.8 4.8 0 11-4.8-4.8c.3 0 .5 0 .8.1v2.4a2.4 2.4 0 102 2.4V4H14z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+  ),
+} as const
 
 const LEGAL = [
   { labelKey: 'legal', href: '/mentions-legales' },
@@ -81,13 +69,30 @@ export interface FooterProps {
   /** Logo géré via l'admin (SiteSettings). Si absent, repli sur le texte de marque. */
   logoUrl?: string | null
   siteName?: string
+  /** Coordonnées globales gérées via l'admin (SiteSettings). */
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  social?: { instagram?: string | null; facebook?: string | null; tiktok?: string | null }
 }
 
-export function Footer({ siteName }: FooterProps = {}) {
+export function Footer({ siteName, phone, email, address, social }: FooterProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const year = new Date().getFullYear()
   const brand = siteName || t('Common.brand')
+
+  // Réseaux sociaux : affichés seulement si une URL est configurée en admin.
+  const socials = (
+    [
+      { label: 'Instagram', href: social?.instagram, icon: SOCIAL_ICONS.instagram },
+      { label: 'Facebook', href: social?.facebook, icon: SOCIAL_ICONS.facebook },
+      { label: 'TikTok', href: social?.tiktok, icon: SOCIAL_ICONS.tiktok },
+    ] as { label: string; href: string | null | undefined; icon: React.ReactNode }[]
+  ).filter((s): s is { label: string; href: string; icon: React.ReactNode } => Boolean(s.href))
+
+  const contactEmail = email || 'contact@dardmana.com'
+  const contactPhone = phone || '+212 6 00 00 00 00'
 
   return (
     <footer className="bg-[var(--vert-fonce)] text-[var(--creme)]">
@@ -103,7 +108,7 @@ export function Footer({ siteName }: FooterProps = {}) {
               {t('Footer.brandDesc')}
             </p>
             <div className="mt-6 flex items-center gap-3">
-              {SOCIALS.map((s) => (
+              {socials.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
@@ -152,16 +157,16 @@ export function Footer({ siteName }: FooterProps = {}) {
             </h3>
             <ul className="mt-5 space-y-3 text-sm text-[var(--creme)]/75">
               <li>
-                <a href="mailto:contact@dardmana.com" className="transition-colors hover:text-[var(--or-royal)]">
-                  contact@dardmana.com
+                <a href={`mailto:${contactEmail}`} className="transition-colors hover:text-[var(--or-royal)]">
+                  {contactEmail}
                 </a>
               </li>
               <li>
-                <a href="tel:+212600000000" className="transition-colors hover:text-[var(--or-royal)]">
-                  +212 6 00 00 00 00
+                <a href={`tel:${contactPhone.replace(/[^+\d]/g, '')}`} className="transition-colors hover:text-[var(--or-royal)]">
+                  {contactPhone}
                 </a>
               </li>
-              <li className="leading-relaxed">{t('Footer.location')}</li>
+              <li className="leading-relaxed">{address || t('Footer.location')}</li>
             </ul>
           </div>
         </div>

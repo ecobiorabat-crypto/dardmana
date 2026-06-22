@@ -11,6 +11,8 @@ interface NavItem {
   label: string
   icon: string
   permission?: Permission
+  /** Libellé de groupe affiché au-dessus de l'item (premier d'un groupe). */
+  group?: string
 }
 
 const NAV: NavItem[] = [
@@ -22,9 +24,15 @@ const NAV: NavItem[] = [
   { href: '/admin/stock', label: 'Stock', icon: 'M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01', permission: 'products.view' },
   { href: '/admin/clients', label: 'Clients', icon: 'M16 20v-2a4 4 0 00-8 0v2M12 11a3 3 0 100-6 3 3 0 000 6z', permission: 'customers.view' },
   { href: '/admin/coupons', label: 'Coupons', icon: 'M3 9l1-3h16l1 3v2a2 2 0 000 4v2l-1 3H4l-1-3v-2a2 2 0 000-4V9zM12 7v10', permission: 'coupons.update' },
-  { href: '/admin/livre-dor', label: "Livre d'Or", icon: 'M21 11.5a8.5 8.5 0 01-12.5 7.5L3 21l2-5A8.5 8.5 0 1121 11.5z', permission: 'cms.update' },
   { href: '/admin/analytics', label: 'Analytics', icon: 'M4 20V10M10 20V4M16 20v-7M22 20H2', permission: 'analytics.view' },
-  { href: '/admin/parametres', label: 'Paramètres', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-5l-.3 2.9a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.9h5l.3-2.9a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z' },
+
+  // ── Contenu (CMS) ──
+  { href: '/admin/cms/homepage', label: 'Page d’accueil', icon: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10', permission: 'cms.update', group: 'Contenu' },
+  { href: '/admin/cms', label: 'Pages', icon: 'M6 2h9l5 5v15H6V2zM14 2v6h6M9 13h6M9 17h6', permission: 'cms.update' },
+  { href: '/admin/livre-dor', label: "Livre d'Or", icon: 'M21 11.5a8.5 8.5 0 01-12.5 7.5L3 21l2-5A8.5 8.5 0 1121 11.5z', permission: 'cms.update' },
+  { href: '/admin/parametres/general', label: 'Paramètres généraux', icon: 'M4 6h16M4 12h16M4 18h10', permission: 'cms.update' },
+
+  { href: '/admin/parametres', label: 'Paramètres', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-5l-.3 2.9a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.9h5l.3-2.9a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z', group: 'Configuration' },
 ]
 
 export function AdminSidebar({
@@ -44,8 +52,13 @@ export function AdminSidebar({
 
   const links = NAV.filter((item) => !item.permission || hasPermission(role, item.permission))
 
-  const isActive = (href: string) =>
-    href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
+  // Lien actif = celui dont le href est le plus long préfixe du chemin courant
+  // (évite le double-surlignage entre /admin/cms et /admin/cms/homepage, etc.).
+  const matches = (href: string) =>
+    href === '/admin' ? pathname === '/admin' : pathname === href || pathname.startsWith(href + '/')
+  const activeHref = links
+    .filter((l) => matches(l.href))
+    .reduce<string | null>((best, l) => (!best || l.href.length > best.length ? l.href : best), null)
 
   const handleLogout = async () => {
     await fetch('/api/auth/admin/logout', { method: 'POST' }).catch(() => {})
@@ -62,13 +75,18 @@ export function AdminSidebar({
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {links.map((item) => (
-          <Link
-            key={item.href}
+          <div key={item.href}>
+            {item.group && (
+              <p className="px-3 pb-1 pt-4 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-[var(--creme)]/40">
+                {item.group}
+              </p>
+            )}
+            <Link
             href={item.href}
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
-              isActive(item.href)
+              activeHref === item.href
                 ? 'bg-white/10 text-[var(--or-clair)]'
                 : 'text-[var(--creme)]/80 hover:bg-white/5 hover:text-[var(--creme)]',
             )}
@@ -82,7 +100,8 @@ export function AdminSidebar({
                 {pendingGuestbook > 99 ? '99+' : pendingGuestbook}
               </span>
             )}
-          </Link>
+            </Link>
+          </div>
         ))}
       </nav>
 

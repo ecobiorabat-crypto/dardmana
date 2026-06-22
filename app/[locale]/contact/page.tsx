@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ContactForm } from '@/components/contact/ContactForm'
+import { Markdown } from '@/components/ui/Markdown'
 import { routing } from '@/i18n/routing'
+import { getSiteSettings } from '@/lib/settings'
+import { getPublishedCmsPage, pickLocale } from '@/lib/cms'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
-// Numéro WhatsApp (format international sans +, espaces ni tirets).
-const WHATSAPP_NUMBER = '212600000000'
+// Numéro WhatsApp par défaut (format international sans +, espaces ni tirets).
+const DEFAULT_WHATSAPP = '212600000000'
 
 export async function generateMetadata({
   params,
@@ -94,6 +97,18 @@ export default async function ContactPage({
   setRequestLocale(locale)
   const t = await getTranslations('Contact')
 
+  // Coordonnées globales (admin) avec repli sur les traductions intégrées.
+  const [settings, cms] = await Promise.all([
+    getSiteSettings(),
+    getPublishedCmsPage('contact-info'),
+  ])
+  const address = settings.address || t('addressValue')
+  const phone = settings.phone || t('phoneValue')
+  const email = settings.email || t('emailValue')
+  const whatsappNumber = (settings.whatsapp || DEFAULT_WHATSAPP).replace(/[^\d]/g, '')
+  const cmsTitle = cms ? pickLocale(cms, 'title', locale) : ''
+  const cmsContent = cms ? pickLocale(cms, 'content', locale) : ''
+
   return (
     <div className="mx-auto max-w-7xl px-4 pt-28 pb-20 sm:px-6 lg:px-8 lg:pt-32">
       <header className="mb-12 max-w-2xl">
@@ -113,26 +128,30 @@ export default async function ContactPage({
 
         {/* Colonne info */}
         <aside className="lg:border-s lg:border-[var(--bordure)] lg:ps-12">
-          <h2 className="mb-2 font-titre text-2xl text-[var(--vert-fonce)]">{t('infoTitle')}</h2>
-          <p className="mb-8 text-sm text-[var(--texte-doux)]">{t('infoSubtitle')}</p>
+          <h2 className="mb-2 font-titre text-2xl text-[var(--vert-fonce)]">{cmsTitle || t('infoTitle')}</h2>
+          {cmsContent ? (
+            <Markdown content={cmsContent} className="mb-8 text-sm [&_p]:mt-2 [&_p]:text-sm" />
+          ) : (
+            <p className="mb-8 text-sm text-[var(--texte-doux)]">{t('infoSubtitle')}</p>
+          )}
 
           <div className="space-y-6">
             <InfoRow icon={ICONS.pin} label={t('addressLabel')}>
-              {t('addressValue')}
+              {address}
             </InfoRow>
 
             <InfoRow icon={ICONS.phone} label={t('phoneLabel')}>
               <a
-                href={`tel:${t('phoneValue').replace(/[^+\d]/g, '')}`}
+                href={`tel:${phone.replace(/[^+\d]/g, '')}`}
                 className="transition-colors hover:text-[var(--vert-fonce)]"
               >
-                {t('phoneValue')}
+                {phone}
               </a>
             </InfoRow>
 
             <InfoRow icon={ICONS.whatsapp} label={t('whatsappLabel')}>
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--vert-fonce)] underline-offset-2 transition-colors hover:text-[var(--or-royal)] hover:underline"
@@ -143,10 +162,10 @@ export default async function ContactPage({
 
             <InfoRow icon={ICONS.mail} label={t('emailLabel')}>
               <a
-                href={`mailto:${t('emailValue')}`}
+                href={`mailto:${email}`}
                 className="transition-colors hover:text-[var(--vert-fonce)]"
               >
-                {t('emailValue')}
+                {email}
               </a>
             </InfoRow>
 

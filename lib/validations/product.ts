@@ -93,6 +93,7 @@ export const ProductFilterSchema = z.object({
   status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']).optional(),
   isFeatured: z.boolean().optional(),
   isNew: z.boolean().optional(),
+  ids: z.string().max(2000).optional(),
   search: z.string().max(200).optional(),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(24),

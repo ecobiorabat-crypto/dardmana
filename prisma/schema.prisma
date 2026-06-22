@@ -474,7 +474,45 @@ model SiteSettings {
   logoUrl     String?
   logoUrlDark String?
   faviconUrl  String?
+
+  // Coordonnées globales (Navbar, Footer, page Contact).
+  phone   String?
+  whatsapp String?
+  address String?
+  email   String?
+
+  // Réseaux sociaux (URLs).
+  socialInstagram String?
+  socialFacebook  String?
+  socialTikTok    String?
+
   updatedAt   DateTime @updatedAt @default(now())
+}
+
+model HomepageSettings {
+  // Singleton : contenu éditable de la page d'accueil.
+  id String @id @default("singleton")
+
+  heroTitleFr String?
+  heroTitleAr String?
+  heroTitleEn String?
+
+  heroSubtitleFr String?
+  heroSubtitleAr String?
+  heroSubtitleEn String?
+
+  announcementTextFr String?
+  announcementTextAr String?
+  announcementTextEn String?
+  announcementActive Boolean @default(false)
+
+  featuredProductIds String[]
+
+  newsletterTitleFr String?
+  newsletterTitleAr String?
+  newsletterTitleEn String?
+
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 // ─── Livre d'Or — feed social de témoignages ────────────────────────────────────

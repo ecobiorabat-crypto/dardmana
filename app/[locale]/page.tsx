@@ -8,6 +8,8 @@ import { Testimonials, type FeaturedTestimonial } from '@/components/home/Testim
 import { prisma } from '@/lib/prisma'
 import { Newsletter } from '@/components/home/Newsletter'
 import { PaymentShipping } from '@/components/home/PaymentShipping'
+import { getHomepageSettings } from '@/lib/homepage'
+import { pickLocale } from '@/lib/cms'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
 
@@ -18,6 +20,12 @@ export default async function HomePage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+
+  // Contenu éditable de la page d'accueil (admin CMS).
+  const homepage = await getHomepageSettings()
+  const heroTitle = pickLocale(homepage, 'heroTitle', locale)
+  const heroSubtitle = pickLocale(homepage, 'heroSubtitle', locale)
+  const newsletterTitle = pickLocale(homepage, 'newsletterTitle', locale)
 
   // Témoignages mis en avant (fallback statique géré dans le composant si vide).
   const featuredRaw = await prisma.guestbookEntry
@@ -136,13 +144,17 @@ export default async function HomePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
       />
-      <HeroSection />
+      <HeroSection
+        titleOverride={heroTitle}
+        subtitleOverride={heroSubtitle}
+        featuredIds={homepage.featuredProductIds}
+      />
       <TrustStrip />
       <CategoriesGrid />
-      <BestSellers />
+      <BestSellers featuredIds={homepage.featuredProductIds} />
       <StorySection />
       <Testimonials featured={featured} />
-      <Newsletter />
+      <Newsletter titleOverride={newsletterTitle} />
       <PaymentShipping />
     </>
   )

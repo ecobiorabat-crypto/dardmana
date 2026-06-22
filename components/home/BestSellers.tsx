@@ -9,19 +9,28 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import type { ProductCardData } from '@/lib/utils/product'
 import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
 
-export function BestSellers() {
+export interface BestSellersProps {
+  /** Sélection CMS de produits mis en avant ; sinon repli sur isFeatured. */
+  featuredIds?: string[]
+}
+
+export function BestSellers({ featuredIds }: BestSellersProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const [products, setProducts] = useState<ProductCardData[] | null>(null)
 
+  const featuredKey = featuredIds?.join(',') ?? ''
   useEffect(() => {
     const controller = new AbortController()
-    fetch('/api/products?isFeatured=true&limit=4', { signal: controller.signal })
+    const query = featuredKey
+      ? `ids=${encodeURIComponent(featuredKey)}&limit=8`
+      : 'isFeatured=true&limit=4'
+    fetch(`/api/products?${query}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProducts(d.products ?? []))
       .catch(() => setProducts([]))
     return () => controller.abort()
-  }, [])
+  }, [featuredKey])
 
   return (
     <section className="bg-[var(--gris-perle)]/40">

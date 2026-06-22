@@ -13,20 +13,34 @@ import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")"
 
-export function HeroSection() {
+export interface HeroSectionProps {
+  /** Override CMS du titre/sous-titre (sinon repli sur les traductions). */
+  titleOverride?: string
+  subtitleOverride?: string
+  /** IDs des produits mis en avant (le premier alimente le visuel). */
+  featuredIds?: string[]
+}
+
+export function HeroSection({ titleOverride, subtitleOverride, featuredIds }: HeroSectionProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
-  const titleWords = t('Hero.title').split(' ')
+  const title = titleOverride?.trim() || t('Hero.title')
+  const subtitle = subtitleOverride?.trim() || t('Hero.subtitle')
+  const titleWords = title.split(' ')
   const [featured, setFeatured] = useState<ProductCardData | null>(null)
 
+  const featuredKey = featuredIds?.join(',') ?? ''
   useEffect(() => {
     const controller = new AbortController()
-    fetch('/api/products?isFeatured=true&limit=1', { signal: controller.signal })
+    const query = featuredKey
+      ? `ids=${encodeURIComponent(featuredKey)}&limit=1`
+      : 'isFeatured=true&limit=1'
+    fetch(`/api/products?${query}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setFeatured(d.products?.[0] ?? null))
       .catch(() => {})
     return () => controller.abort()
-  }, [])
+  }, [featuredKey])
 
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden bg-[var(--vert-fonce)] text-[var(--creme)]">
@@ -82,7 +96,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="mt-6 max-w-md text-base leading-relaxed text-[var(--creme)]/80"
           >
-            {t('Hero.subtitle')}
+            {subtitle}
           </motion.p>
 
           <motion.div
