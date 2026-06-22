@@ -5,7 +5,7 @@ import { forwardRef } from 'react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils/cn'
 
-export type ButtonVariant = 'gold' | 'dark' | 'outline' | 'ghost'
+export type ButtonVariant = 'gold' | 'dark' | 'outline' | 'outline-light' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 export interface ButtonProps
@@ -34,6 +34,12 @@ const VARIANTS: Record<ButtonVariant, string> = {
   outline: cn(
     'bg-transparent text-[var(--vert-fonce)] border border-[var(--or-royal)]',
     'hover:bg-[var(--creme)]',
+  ),
+  // Variante destinée aux fonds sombres (ex. Hero vert foncé) : texte clair
+  // visible sans survol et bordure claire suffisamment contrastée.
+  'outline-light': cn(
+    'bg-transparent text-[var(--creme)] border border-[rgba(255,255,255,0.6)]',
+    'hover:bg-[rgba(250,246,239,0.12)] hover:border-[var(--creme)]',
   ),
   ghost: cn(
     'bg-transparent text-[var(--vert-fonce)] border border-transparent',

@@ -96,9 +96,8 @@ export function HeroSection() {
             </Button>
             <Button
               href={localizedHref(locale, '/notre-histoire')}
-              variant="outline"
+              variant="outline-light"
               size="lg"
-              className="border-[var(--creme)] text-[var(--creme)] hover:bg-[var(--creme)]/10"
             >
               {t('Hero.ctaSecondary')}
             </Button>
