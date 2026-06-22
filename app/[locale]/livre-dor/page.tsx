@@ -107,7 +107,12 @@ export default async function LivreDorPage({
   const googleWriteReviewUrl = googlePlaceId
     ? `https://search.google.com/local/writereview?placeid=${googlePlaceId}`
     : ''
-  const tiktokUrl = process.env.NEXT_PUBLIC_TIKTOK_URL || '#'
+  // Le lien TikTok dérive du pseudo (modifiable en admin) → source unique de vérité.
+  // NEXT_PUBLIC_TIKTOK_URL ne sert que de repli si aucun pseudo n'est défini.
+  const tiktokSlug = tiktokHandle.trim().replace(/^@+/, '')
+  const tiktokUrl = tiktokSlug
+    ? `https://www.tiktok.com/@${tiktokSlug}`
+    : process.env.NEXT_PUBLIC_TIKTOK_URL || '#'
 
   return (
     <div className="pb-24">
