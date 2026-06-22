@@ -196,9 +196,9 @@ model Customer {
   id         String  @id @default(cuid())
   authUserId String? @unique
 
-  email String @unique
+  email String?
   name  String
-  phone String?
+  phone String? @unique
 
   country           String @default("MA")
   preferredLanguage String @default("fr")

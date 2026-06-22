@@ -1,4 +1,5 @@
-nom,email,telephone,ville,pays
-Salma Bennani,salma.bennani@example.com,0612345678,Casablanca,MA
-Youssef Alaoui,youssef.alaoui@example.com,+212661122334,Rabat,MA
-Camille Dupont,camille.dupont@example.fr,,Paris,FR
+nom,telephone,email,ville,pays
+Salma Bennani,0612345678,salma.bennani@example.com,Casablanca,MA
+Youssef Alaoui,06 61 12 23 34,,Rabat,MA
+Karim Idrissi,612345678,,Marrakech,
+Camille Dupont,+33612345678,camille.dupont@example.fr,Paris,FR

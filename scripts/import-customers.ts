@@ -1,10 +1,14 @@
 /**
  * Importe des clients depuis scripts/customers.csv.
  *
- * Colonnes attendues (l'ordre n'importe pas, en-têtes insensibles à la casse/accents) :
- *   nom, email, telephone, ville, pays   (pays = MA par défaut si vide)
+ * Colonnes (l'ordre n'importe pas, en-têtes insensibles à la casse/accents) :
+ *   nom, telephone, email, ville, pays
+ *   → obligatoires : nom et telephone. Optionnels : email, ville, pays (MA par défaut).
  *
- * - Upsert par email : un email déjà présent en base est ignoré (pas de doublon).
+ * - Clé d'unicité = TÉLÉPHONE (normalisé au format international +212…).
+ *   Un téléphone déjà présent en base est ignoré (pas de doublon).
+ * - Email absent/vide → laissé à null.
+ * - Téléphone absent → ligne ignorée (log clair).
  * - Customer n'ayant pas de champ "ville", la ville (si fournie) est enregistrée
  *   dans une Address par défaut rattachée au client.
  *
@@ -86,6 +90,17 @@ function parseCsv(raw: string): Record<string, string>[] {
 
 // ─── Import ────────────────────────────────────────────────────────────────────
 
+/** Normalise un numéro marocain au format international (+212…). */
+function normalizePhone(raw: string): string {
+  const p = raw.replace(/[\s.\-()/]/g, '') // retire espaces, points, tirets, parenthèses, slashs
+  if (!p) return ''
+  if (p.startsWith('+')) return p // déjà international
+  if (p.startsWith('00')) return '+' + p.slice(2) // 00212… → +212…
+  if (p.startsWith('212')) return '+' + p // 212… → +212…
+  if (p.startsWith('0')) return '+212' + p.slice(1) // 0612345678 → +212612345678
+  return '+212' + p // numéro local sans 0 (ex : 612345678) → suppose MA
+}
+
 async function main() {
   let raw: string
   try {
@@ -103,31 +118,41 @@ async function main() {
   }
 
   let created = 0
-  let skipped = 0
+  let skipped = 0 // doublon : téléphone déjà en base
+  let ignored = 0 // nom ou téléphone manquant
   let addresses = 0
   const errors: string[] = []
 
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i]
     const ligne = i + 2 // +2 : 1 pour l'en-tête, 1 pour l'index 0-based
-    const email = (r.email ?? '').toLowerCase().trim()
     const nom = (r.nom ?? '').trim()
-    const telephone = (r.telephone ?? '').trim()
+    const email = (r.email ?? '').toLowerCase().trim()
     const ville = (r.ville ?? '').trim()
     const pays = ((r.pays ?? '').trim().toUpperCase()) || 'MA'
+    const phone = normalizePhone((r.telephone ?? '').trim())
 
-    if (!email || !email.includes('@')) { errors.push(`Ligne ${ligne}: email manquant/invalide`); continue }
-    if (!nom) { errors.push(`Ligne ${ligne}: nom manquant (${email})`); continue }
+    if (!nom) {
+      console.log(`⏭️  Ignoré (nom manquant) : ligne ${ligne}`)
+      ignored++
+      continue
+    }
+    if (!phone) {
+      console.log(`⏭️  Ignoré (téléphone manquant) : ${nom}`)
+      ignored++
+      continue
+    }
 
     try {
-      const existing = await prisma.customer.findUnique({ where: { email }, select: { id: true } })
+      // Clé d'unicité = téléphone : un numéro déjà en base est ignoré (doublon).
+      const existing = await prisma.customer.findUnique({ where: { phone }, select: { id: true } })
       if (existing) { skipped++; continue }
 
       const customer = await prisma.customer.create({
         data: {
-          email,
           name: nom,
-          phone: telephone || null,
+          phone,
+          email: email || null, // email optionnel → null si absent
           country: pays,
         },
         select: { id: true },
@@ -141,7 +166,7 @@ async function main() {
             customerId: customer.id,
             label: 'Importé',
             fullName: nom,
-            phone: telephone || '—',
+            phone,
             addressLine1: '(à compléter)',
             city: ville,
             country: pays,
@@ -151,13 +176,14 @@ async function main() {
         addresses++
       }
     } catch (e) {
-      errors.push(`Ligne ${ligne} (${email}): ${(e as Error).message.slice(0, 90)}`)
+      errors.push(`Ligne ${ligne} (${nom}): ${(e as Error).message.slice(0, 90)}`)
     }
   }
 
   console.log('\n──────── Import terminé ────────')
   console.log(`✅ ${created} client(s) créé(s)`)
-  console.log(`⏭️  ${skipped} ignoré(s) (email déjà en base — doublon)`)
+  console.log(`⏭️  ${skipped} ignoré(s) (téléphone déjà en base — doublon)`)
+  if (ignored > 0) console.log(`⚠️  ${ignored} ligne(s) ignorée(s) (nom ou téléphone manquant)`)
   if (addresses > 0) console.log(`📍 ${addresses} adresse(s) créée(s) à partir de la ville`)
   if (errors.length > 0) {
     console.log(`❌ ${errors.length} ligne(s) en erreur :`)

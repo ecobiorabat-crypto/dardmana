@@ -31,7 +31,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
     : {}
 
   let customers: {
-    id: string; name: string; email: string; country: string
+    id: string; name: string; email: string | null; country: string
     totalOrders: number; totalSpentMad: unknown; createdAt: Date
   }[] = []
   let total = 0
@@ -83,7 +83,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                     <td className="px-5 py-3">
                       <Link href={`/admin/clients/${c.id}`} className="font-medium text-[var(--vert-fonce)] group-hover:underline">{c.name}</Link>
                     </td>
-                    <td className="px-5 py-3 text-[var(--texte-doux)]">{c.email}</td>
+                    <td className="px-5 py-3 text-[var(--texte-doux)]">{c.email ?? '—'}</td>
                     <td className="px-5 py-3">{c.country}</td>
                     <td className="px-5 py-3">{c.totalOrders}</td>
                     <td className="px-5 py-3">{formatMad(Number(c.totalSpentMad))}</td>
