@@ -154,6 +154,114 @@ export function HomepageForm({
         ))}
       </section>
 
+      {/* Section savoir-faire (storytelling) */}
+      <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Section savoir-faire</h3>
+        <p className="mb-4 text-xs text-[var(--texte-doux)]">
+          Bloc « Notre savoir-faire » de la page d’accueil. Laissez vide pour conserver le texte par défaut.
+        </p>
+
+        {/* Statistiques — valeurs communes à toutes les langues */}
+        <div className="mb-5 grid grid-cols-3 gap-3">
+          <div>
+            <label className={labelCls}>Stat 1 — valeur</label>
+            <input
+              className={inputCls}
+              value={form.stat1Value ?? ''}
+              onChange={(e) => set('stat1Value', e.target.value)}
+              placeholder="500+"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Stat 2 — valeur</label>
+            <input
+              className={inputCls}
+              value={form.stat2Value ?? ''}
+              onChange={(e) => set('stat2Value', e.target.value)}
+              placeholder="6"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Stat 3 — valeur</label>
+            <input
+              className={inputCls}
+              value={form.stat3Value ?? ''}
+              onChange={(e) => set('stat3Value', e.target.value)}
+              placeholder="48h"
+            />
+          </div>
+        </div>
+
+        {LANGS.map((l) => (
+          <div key={l} className={lang === l ? 'space-y-4' : 'hidden'} dir={l === 'ar' ? 'rtl' : 'ltr'}>
+            <div>
+              <label className={labelCls}>Eyebrow ({l.toUpperCase()})</label>
+              <input
+                className={inputCls}
+                value={(form[`storytellingEyebrow${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                onChange={(e) => set(`storytellingEyebrow${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+                placeholder="Notre savoir-faire"
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Titre ({l.toUpperCase()})</label>
+              <input
+                className={inputCls}
+                value={(form[`storytellingTitle${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                onChange={(e) => set(`storytellingTitle${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Texte ({l.toUpperCase()})</label>
+              <textarea
+                rows={3}
+                className={`${inputCls} resize-y`}
+                value={(form[`storytellingText${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                onChange={(e) => set(`storytellingText${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className={labelCls}>Stat 1 — libellé ({l.toUpperCase()})</label>
+                <input
+                  className={inputCls}
+                  value={(form[`stat1Label${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                  onChange={(e) => set(`stat1Label${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+                  placeholder="Clients satisfaits"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Stat 2 — libellé ({l.toUpperCase()})</label>
+                <input
+                  className={inputCls}
+                  value={(form[`stat2Label${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                  onChange={(e) => set(`stat2Label${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+                  placeholder="Collections"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Stat 3 — libellé ({l.toUpperCase()})</label>
+                <input
+                  className={inputCls}
+                  value={(form[`stat3Label${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                  onChange={(e) => set(`stat3Label${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+                  placeholder="Livraison"
+                />
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Texte du bouton ({l.toUpperCase()})</label>
+              <input
+                className={inputCls}
+                value={(form[`storytellingButtonText${cap(l)}` as keyof HomepageSettingsData] as string) ?? ''}
+                onChange={(e) => set(`storytellingButtonText${cap(l)}` as keyof HomepageSettingsData, e.target.value as never)}
+                placeholder="Découvrir notre histoire"
+              />
+            </div>
+          </div>
+        ))}
+      </section>
+
       {/* Produits mis en avant */}
       <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
         <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Produits mis en avant</h3>

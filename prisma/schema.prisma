@@ -512,6 +512,39 @@ model HomepageSettings {
   newsletterTitleAr String?
   newsletterTitleEn String?
 
+  // Section « Notre savoir-faire » (storytelling) — contenu localisé.
+  storytellingEyebrowFr String?
+  storytellingEyebrowAr String?
+  storytellingEyebrowEn String?
+
+  storytellingTitleFr String?
+  storytellingTitleAr String?
+  storytellingTitleEn String?
+
+  storytellingTextFr String?
+  storytellingTextAr String?
+  storytellingTextEn String?
+
+  // Statistiques (valeur non localisée, libellé localisé).
+  stat1Value   String?
+  stat1LabelFr String?
+  stat1LabelAr String?
+  stat1LabelEn String?
+
+  stat2Value   String?
+  stat2LabelFr String?
+  stat2LabelAr String?
+  stat2LabelEn String?
+
+  stat3Value   String?
+  stat3LabelFr String?
+  stat3LabelAr String?
+  stat3LabelEn String?
+
+  storytellingButtonTextFr String?
+  storytellingButtonTextAr String?
+  storytellingButtonTextEn String?
+
   updatedAt DateTime @updatedAt @default(now())
 }
 

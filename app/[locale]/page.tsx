@@ -35,6 +35,21 @@ export default async function HomePage({
   const heroSubtitle = pickLocale(homepage, 'heroSubtitle', locale)
   const newsletterTitle = pickLocale(homepage, 'newsletterTitle', locale)
 
+  // Section « Notre savoir-faire » — overrides CMS (repli sur les traductions
+  // géré dans le composant si une valeur est vide).
+  const storyContent = {
+    eyebrow: pickLocale(homepage, 'storytellingEyebrow', locale),
+    title: pickLocale(homepage, 'storytellingTitle', locale),
+    body: pickLocale(homepage, 'storytellingText', locale),
+    cta: pickLocale(homepage, 'storytellingButtonText', locale),
+    stat1Value: homepage.stat1Value ?? '',
+    stat1Label: pickLocale(homepage, 'stat1Label', locale),
+    stat2Value: homepage.stat2Value ?? '',
+    stat2Label: pickLocale(homepage, 'stat2Label', locale),
+    stat3Value: homepage.stat3Value ?? '',
+    stat3Label: pickLocale(homepage, 'stat3Label', locale),
+  }
+
   // sameAs des données structurées : réseaux sociaux configurés en admin.
   const sameAs = [
     settings.socialInstagram || DEFAULT_SOCIALS.instagram,
@@ -176,7 +191,7 @@ export default async function HomePage({
       <TrustStrip />
       <CategoriesGrid />
       <BestSellers featuredIds={homepage.featuredProductIds} />
-      <StorySection />
+      <StorySection content={storyContent} />
       <Testimonials featured={featured} />
       <Newsletter titleOverride={newsletterTitle} />
       <PaymentShipping />
