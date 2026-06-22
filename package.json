@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "create-admin": "tsx scripts/create-admin.ts",
+    "import-customers": "tsx scripts/import-customers.ts",
     "test:permissions": "tsx lib/auth/permissions.test.ts"
   },
   "prisma": {

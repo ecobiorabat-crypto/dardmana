@@ -35,6 +35,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# données clients à importer (PII) — ne jamais commettre
+scripts/customers.csv
+
 # vercel
 .vercel
 
