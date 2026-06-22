@@ -78,6 +78,16 @@ export function ProductCard({ product, className, priority = false }: ProductCar
           </div>
         )}
 
+        {/* Filigrane de marque (overlay discret, n'entrave pas l'interaction) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/watermark-overlay.png"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute bottom-2 end-2 w-12 select-none opacity-35"
+        />
+
         <div className="absolute start-3 top-3 flex flex-col gap-1.5">
           {outOfStock ? (
             <Badge variant="outofstock" />

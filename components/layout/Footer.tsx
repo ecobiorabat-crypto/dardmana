@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { localizedHref, useCurrentLocale } from './nav'
 import { cn } from '@/lib/utils/cn'
@@ -84,7 +83,7 @@ export interface FooterProps {
   siteName?: string
 }
 
-export function Footer({ logoUrl, siteName }: FooterProps = {}) {
+export function Footer({ siteName }: FooterProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const year = new Date().getFullYear()
@@ -96,17 +95,10 @@ export function Footer({ logoUrl, siteName }: FooterProps = {}) {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:pe-6">
-            {logoUrl ? (
-              <Image
-                src={logoUrl}
-                alt={brand}
-                width={160}
-                height={44}
-                className="h-10 w-auto object-contain"
-              />
-            ) : (
-              <p className="font-titre text-2xl text-[var(--or-royal)]">{brand}</p>
-            )}
+            <p aria-label={brand} className="font-titre text-2xl text-[var(--blanc)]">
+              <span aria-hidden="true" className="font-light">Dar</span>{' '}
+              <em aria-hidden="true" className="font-normal italic">Dmana</em>
+            </p>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--creme)]/75">
               {t('Footer.brandDesc')}
             </p>

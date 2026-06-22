@@ -83,6 +83,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
+   Polices arabes (RTL) — Jost/Cormorant ne couvrent pas l'arabe.
+   On garde la police latine EN PREMIER (marque, prix, chiffres restent en
+   latin), et on ajoute la police arabe en repli : le navigateur choisit la
+   bonne police glyphe par glyphe. Amiri = titres, Noto Naskh Arabic = texte.
+   ========================================================================== */
+[lang="ar"],
+[dir="rtl"] {
+  font-family: var(--font-corps), var(--font-naskh), "Noto Naskh Arabic", serif;
+}
+
+[lang="ar"] :is(h1, h2, h3, h4, h5, h6),
+[dir="rtl"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-titre), var(--font-amiri), "Amiri", serif;
+}
+
+/* Les utilitaires du design system reçoivent aussi le repli arabe en RTL */
+[dir="rtl"] .font-corps {
+  font-family: var(--font-corps), var(--font-naskh), "Noto Naskh Arabic", serif;
+}
+[dir="rtl"] .font-titre {
+  font-family: var(--font-titre), var(--font-amiri), "Amiri", serif;
+}
+
+/* ==========================================================================
    Animations partagées
    ========================================================================== */
 @keyframes dd-spin {

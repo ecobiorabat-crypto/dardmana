@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useCartStore } from '@/store/cart'
@@ -76,7 +75,7 @@ export interface NavbarProps {
   siteName?: string
 }
 
-export function Navbar({ logoUrl, siteName }: NavbarProps = {}) {
+export function Navbar({ siteName }: NavbarProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const brand = siteName || t('Common.brand')
@@ -128,20 +127,13 @@ export function Navbar({ logoUrl, siteName }: NavbarProps = {}) {
               'absolute left-1/2 -translate-x-1/2 md:static md:left-auto md:translate-x-0',
             )}
           >
-            {logoUrl ? (
-              <Image
-                src={logoUrl}
-                alt={brand}
-                width={160}
-                height={44}
-                priority
-                className="h-8 w-auto object-contain lg:h-10"
-              />
-            ) : (
-              <span className="font-titre text-2xl tracking-wide text-[var(--or-royal)] lg:text-3xl">
-                {brand}
-              </span>
-            )}
+            <span
+              aria-label={brand}
+              className="font-titre text-2xl tracking-wide text-[var(--blanc)] lg:text-3xl"
+            >
+              <span aria-hidden="true" className="font-light">Dar</span>{' '}
+              <em aria-hidden="true" className="font-normal italic">Dmana</em>
+            </span>
           </Link>
 
           {/* --- Liens centre (desktop) --- */}

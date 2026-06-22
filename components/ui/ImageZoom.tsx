@@ -154,6 +154,16 @@ export function ImageZoom({
           style={{ transform: `scale(${scale})`, transformOrigin }}
         />
 
+        {/* Filigrane de marque — reste fixe (ne zoome pas avec l'image) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/watermark-overlay.png"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute bottom-3 end-3 w-[60px] select-none opacity-35"
+        />
+
         {hasMany && (
           <>
             <button
