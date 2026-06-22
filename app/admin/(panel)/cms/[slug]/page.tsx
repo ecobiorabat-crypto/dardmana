@@ -26,6 +26,8 @@ export default async function CmsEditPage({ params }: { params: Promise<{ slug: 
           contentFr: page.contentFr,
           contentAr: page.contentAr,
           contentEn: page.contentEn,
+          heroImageUrl: page.heroImageUrl,
+          galleryImages: page.galleryImages,
           isPublished: page.isPublished,
         }}
       />

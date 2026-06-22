@@ -20,6 +20,8 @@ export default async function CmsNewPage() {
           contentFr: '',
           contentAr: '',
           contentEn: '',
+          heroImageUrl: null,
+          galleryImages: [],
           isPublished: false,
         }}
       />

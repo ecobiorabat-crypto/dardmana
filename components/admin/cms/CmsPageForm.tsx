@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ImageUploader } from '@/components/admin/produits/ImageUploader'
 import { createCmsPageAction, updateCmsPageAction, type CmsPageInput } from '@/app/admin/(panel)/cms/actions'
 
 const LANGS = ['fr', 'ar', 'en'] as const
@@ -113,6 +114,58 @@ export function CmsPageForm({ initial, mode }: { initial: CmsPageInput; mode: 'c
             </div>
           </div>
         ))}
+      </section>
+
+      {/* Image principale (banner) */}
+      <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Image principale</h3>
+        <p className="mb-4 text-xs text-[var(--texte-doux)]">
+          Bannière affichée en haut de la page (optionnelle).
+        </p>
+
+        {form.heroImageUrl ? (
+          <div className="mb-4 flex items-start gap-4">
+            <div className="relative h-32 w-56 overflow-hidden border border-[var(--bordure)] bg-[var(--gris-perle)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={form.heroImageUrl} alt="Aperçu de l'image principale" className="h-full w-full object-cover" />
+            </div>
+            <button
+              type="button"
+              onClick={() => set('heroImageUrl', null)}
+              className="border border-[var(--erreur)]/50 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.1em] text-[var(--erreur)] transition-colors hover:bg-[var(--erreur)] hover:text-white"
+            >
+              Supprimer l'image
+            </button>
+          </div>
+        ) : (
+          <p className="mb-4 text-sm text-[var(--texte-doux)]">Aucune image principale définie.</p>
+        )}
+
+        <p className="mb-2 text-xs uppercase tracking-[0.1em] text-[var(--texte-doux)]">
+          {form.heroImageUrl ? "Changer l'image" : 'Ajouter une image'}
+        </p>
+        <ImageUploader
+          images={[]}
+          maxImages={1}
+          onChange={(imgs) => {
+            const url = imgs[imgs.length - 1]
+            if (url) set('heroImageUrl', url)
+          }}
+        />
+      </section>
+
+      {/* Galerie (optionnelle, multi-images) */}
+      <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Galerie</h3>
+        <p className="mb-4 text-xs text-[var(--texte-doux)]">
+          Images additionnelles affichées sur la page (optionnel). Glissez pour réordonner,
+          ✕ pour supprimer.
+        </p>
+        <ImageUploader
+          images={form.galleryImages}
+          maxImages={12}
+          onChange={(imgs) => set('galleryImages', imgs)}
+        />
       </section>
 
       {/* Statut */}

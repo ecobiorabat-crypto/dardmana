@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
 import { Button } from '@/components/ui/Button'
@@ -89,8 +90,24 @@ export default async function NotreHistoirePage({
     const content = pickLocale(cms, 'content', locale)
     return (
       <div className="pb-20">
-        <section className="relative flex min-h-[50vh] items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--vert-fonce)] via-[var(--vert-moyen)] to-[var(--vert-fonce)] px-4 pt-28 pb-16 text-center sm:px-6 lg:pt-32">
-          <Reveal direction="up" className="relative">
+        <section className="relative flex min-h-[50vh] items-center justify-center overflow-hidden px-4 pt-28 pb-16 text-center sm:px-6 lg:pt-32">
+          {/* Image principale gérée via l'admin, sinon dégradé par défaut. */}
+          {cms.heroImageUrl ? (
+            <>
+              <Image
+                src={cms.heroImageUrl}
+                alt={title}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-[var(--vert-fonce)]/70" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--vert-fonce)] via-[var(--vert-moyen)] to-[var(--vert-fonce)]" />
+          )}
+          <Reveal direction="up" className="relative z-10">
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.32em] text-[var(--or-clair)]">
               {t('heroEyebrow')}
             </p>
@@ -103,6 +120,27 @@ export default async function NotreHistoirePage({
             <Markdown content={content} />
           </Reveal>
         </section>
+
+        {/* Galerie « Nos artisans / savoir-faire » — images gérées via l'admin. */}
+        {cms.galleryImages.length > 0 && (
+          <section className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {cms.galleryImages.map((src, i) => (
+                  <div key={src} className="relative aspect-[4/3] overflow-hidden bg-[var(--gris-perle)]">
+                    <Image
+                      src={src}
+                      alt={`${title} — Dar Dmana ${i + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </section>
+        )}
 
         <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Reveal>

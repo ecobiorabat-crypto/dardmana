@@ -609,6 +609,10 @@ model CMSPage {
   contentAr String
   contentEn String
 
+  // Médias éditables : image principale (banner) + galerie optionnelle.
+  heroImageUrl  String?
+  galleryImages String[]
+
   isPublished Boolean @default(false)
 
   createdAt DateTime @default(now())

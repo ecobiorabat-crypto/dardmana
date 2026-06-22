@@ -28,6 +28,8 @@ export interface CmsPageData {
   contentFr: string
   contentAr: string
   contentEn: string
+  heroImageUrl: string | null
+  galleryImages: string[]
   isPublished: boolean
   updatedAt: Date
 }
