@@ -118,7 +118,7 @@ export function HeroSection({ titleOverride, subtitleOverride, featuredIds }: He
           </motion.div>
         </div>
 
-        {/* Produit vedette */}
+        {/* Produit vedette — objet flottant en 3D */}
         <div className="lg:col-span-5">
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
@@ -128,26 +128,60 @@ export function HeroSection({ titleOverride, subtitleOverride, featuredIds }: He
           >
             {featured ? (
               <Link href={localizedHref(locale, `/produit/${featured.slug}`)} className="group block">
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--vert-moyen)]/30">
-                  {featured.images?.[0] ? (
-                    <Image
-                      src={featured.images[0]}
-                      alt={productName(featured, locale)}
-                      fill
-                      sizes="(max-width: 1024px) 384px, 40vw"
-                      priority
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <span className="font-titre text-5xl text-[var(--or-clair)]/40">DD</span>
-                    </div>
-                  )}
-                  <span className="absolute start-4 top-4 bg-[var(--or-royal)] px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.16em] text-[var(--noir)]">
-                    {t('Hero.featured')}
-                  </span>
+                {/* Scène 3D : perspective appliquée au parent (desktop uniquement) */}
+                <div className="relative lg:[perspective:1000px]">
+                  {/* Ombre portée : ellipse qui pulse en opposition au flottement.
+                      Image en haut → ombre petite & claire ; image en bas → ombre large & sombre. */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -bottom-6 left-1/2 h-6 w-3/4 -translate-x-1/2 rounded-[50%] bg-[rgba(26,92,42,0.3)] [filter:blur(20px)]"
+                    initial={{ scaleX: 0.85, opacity: 0.18 }}
+                    animate={{ scaleX: 1.05, opacity: 0.35 }}
+                    transition={{ duration: 3, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+                  />
+
+                  {/* Couche de rotation 3D : désactivée sur mobile, inversée au survol. */}
+                  <div className="transition-transform duration-700 ease-out [transform-style:preserve-3d] lg:[transform:rotateX(5deg)_rotateY(-5deg)] lg:group-hover:[transform:rotateX(-2deg)_rotateY(2deg)]">
+                    {/* Couche de flottement : translateY en boucle sinusoïdale (yoyo). */}
+                    <motion.div
+                      className="relative"
+                      initial={{ y: -8 }}
+                      animate={{ y: 8 }}
+                      transition={{ duration: 3, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+                    >
+                      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--vert-moyen)]/30 shadow-[0_30px_60px_-25px_rgba(20,19,15,0.55)]">
+                        {featured.images?.[0] ? (
+                          <Image
+                            src={featured.images[0]}
+                            alt={productName(featured, locale)}
+                            fill
+                            sizes="(max-width: 1024px) 384px, 40vw"
+                            priority
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <span className="font-titre text-5xl text-[var(--or-clair)]/40">DD</span>
+                          </div>
+                        )}
+                        <span className="absolute start-4 top-4 bg-[var(--or-royal)] px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.16em] text-[var(--noir)]">
+                          {t('Hero.featured')}
+                        </span>
+                      </div>
+
+                      {/* Reflet subtil sous l'image (desktop uniquement). */}
+                      {featured.images?.[0] && (
+                        <div
+                          aria-hidden="true"
+                          style={{ backgroundImage: `url(${featured.images[0]})` }}
+                          className="pointer-events-none absolute inset-x-0 top-full hidden h-20 bg-cover bg-center opacity-[0.15] [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.5),transparent)] [transform:scaleY(-1)] lg:block"
+                        />
+                      )}
+                    </motion.div>
+                  </div>
                 </div>
-                <div className="mt-4 flex items-end justify-between">
+
+                <div className="relative mt-4 flex items-end justify-between">
                   <p className="font-titre text-xl text-[var(--creme)]">
                     {productName(featured, locale)}
                   </p>
