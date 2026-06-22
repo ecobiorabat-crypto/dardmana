@@ -63,7 +63,7 @@ export function ProductCard({ product, className, priority = false }: ProductCar
         {product.images?.[0] ? (
           <Image
             src={product.images[0]}
-            alt={name}
+            alt={`${name} — Dar Dmana`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}

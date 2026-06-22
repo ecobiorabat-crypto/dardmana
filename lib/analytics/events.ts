@@ -55,6 +55,18 @@ function gtag(...args: unknown[]): void {
   }
 }
 
+/**
+ * Pousse un événement e-commerce au format Google Tag Manager (GA4) dans le
+ * dataLayer. Permet de brancher GTM sans modifier le code si GA4 est préféré.
+ */
+function dl(event: string, ecommerce: Record<string, unknown>): void {
+  if (typeof window === 'undefined') return
+  window.dataLayer = window.dataLayer || []
+  // Réinitialise l'objet ecommerce (recommandation Google) avant le nouvel event.
+  window.dataLayer.push({ ecommerce: null })
+  window.dataLayer.push({ event, ecommerce })
+}
+
 function gaItems(items: AnalyticsCartItem[]) {
   return items.map((i) => ({
     item_id: i.id,
@@ -79,13 +91,11 @@ export function trackViewProduct(product: AnalyticsProduct): void {
     value: product.price,
     currency: CURRENCY,
   })
-  gtag('event', 'view_item', {
-    currency: CURRENCY,
-    value: product.price,
-    items: [
-      { item_id: product.id, item_name: product.name, price: product.price, item_category: product.category },
-    ],
-  })
+  const items = [
+    { item_id: product.id, item_name: product.name, price: product.price, item_category: product.category },
+  ]
+  gtag('event', 'view_item', { currency: CURRENCY, value: product.price, items })
+  dl('view_item', { currency: CURRENCY, value: product.price, items })
 }
 
 export function trackAddToCart(product: AnalyticsProduct, quantity: number): void {
@@ -97,13 +107,11 @@ export function trackAddToCart(product: AnalyticsProduct, quantity: number): voi
     value,
     currency: CURRENCY,
   })
-  gtag('event', 'add_to_cart', {
-    currency: CURRENCY,
-    value,
-    items: [
-      { item_id: product.id, item_name: product.name, price: product.price, quantity },
-    ],
-  })
+  const items = [
+    { item_id: product.id, item_name: product.name, price: product.price, quantity },
+  ]
+  gtag('event', 'add_to_cart', { currency: CURRENCY, value, items })
+  dl('add_to_cart', { currency: CURRENCY, value, items })
 }
 
 export function trackBeginCheckout(cart: AnalyticsCart): void {
@@ -120,6 +128,7 @@ export function trackBeginCheckout(cart: AnalyticsCart): void {
     value: cart.total,
     items: gaItems(cart.items),
   })
+  dl('begin_checkout', { currency: CURRENCY, value: cart.total, items: gaItems(cart.items) })
 }
 
 export function trackPurchase(order: AnalyticsOrder): void {
@@ -130,6 +139,12 @@ export function trackPurchase(order: AnalyticsOrder): void {
     currency: CURRENCY,
   })
   gtag('event', 'purchase', {
+    transaction_id: order.orderNumber,
+    currency: CURRENCY,
+    value: order.total,
+    items: gaItems(order.items),
+  })
+  dl('purchase', {
     transaction_id: order.orderNumber,
     currency: CURRENCY,
     value: order.total,

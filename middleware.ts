@@ -23,11 +23,17 @@ function isRateLimited(ip: string, limit: number, windowMs: number): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip static assets and Next.js internals
+  // Skip static assets, Next.js internals et fichiers SEO racine.
+  // Important : robots.txt / sitemap.xml doivent rester à la racine et NE PAS
+  // être préfixés par la locale (sinon redirection 307 → /fr/robots.txt, cassé
+  // pour les crawlers).
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon') ||
-    pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff2?)$/)
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/manifest.webmanifest' ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|txt|xml|webmanifest|woff2?)$/)
   ) {
     return NextResponse.next()
   }

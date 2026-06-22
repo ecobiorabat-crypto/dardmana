@@ -81,27 +81,32 @@ export async function generateMetadata({
       locale,
     )
     const image = product.images?.[0]
+    // Titre "{nom} | Dar Dmana" — sans doubler la marque si un metaTitle
+    // personnalisé la contient déjà.
+    const fullTitle = /dar dmana/i.test(metaTitle) ? metaTitle : `${metaTitle} | Dar Dmana`
     const url = `${SITE_URL}/${locale}/produit/${slug}`
     const languages: Record<string, string> = {}
     for (const l of routing.locales) languages[l] = `${SITE_URL}/${l}/produit/${slug}`
 
     const openGraph = {
-      title: metaTitle,
+      title: fullTitle,
       description: metaDesc || undefined,
       url,
       siteName: 'Dar Dmana',
       type: 'website',
-      images: image ? [{ url: image, width: 1200, height: 1200, alt: name }] : undefined,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: `${name} — Dar Dmana` }] : undefined,
     } as unknown as Metadata['openGraph']
 
     return {
-      title: metaTitle,
+      // Titre absolu pour éviter le double suffixe de marque du template global.
+      title: { absolute: fullTitle },
       description: metaDesc || `Découvrez ${name} sur Dar Dmana.`,
       alternates: { canonical: url, languages },
       openGraph,
       twitter: {
         card: 'summary_large_image',
-        title: metaTitle,
+        site: '@dar_dmana_tassebih',
+        title: fullTitle,
         description: metaDesc || undefined,
         images: image ? [image] : undefined,
       },

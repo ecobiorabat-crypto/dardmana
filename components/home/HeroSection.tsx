@@ -153,7 +153,7 @@ export function HeroSection({ titleOverride, subtitleOverride, featuredIds }: He
                         {featured.images?.[0] ? (
                           <Image
                             src={featured.images[0]}
-                            alt={productName(featured, locale)}
+                            alt={`${productName(featured, locale)} — Dar Dmana`}
                             fill
                             sizes="(max-width: 1024px) 384px, 40vw"
                             priority

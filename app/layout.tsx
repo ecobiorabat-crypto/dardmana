@@ -33,8 +33,11 @@ const notoNaskh = Noto_Naskh_Arabic({
   display: "swap",
 });
 
+const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "https://dardmana.ma").replace(/\/$/, "");
+
 export const metadata: Metadata = {
-  title: "Dar Dmana",
+  metadataBase: new URL(SITE_URL),
+  title: "Dar Dmana — Artisanat Marocain Authentique",
   description: "Maison de luxe — élégance et savoir-faire.",
 };
 

@@ -9,9 +9,17 @@ import { prisma } from '@/lib/prisma'
 import { Newsletter } from '@/components/home/Newsletter'
 import { PaymentShipping } from '@/components/home/PaymentShipping'
 import { getHomepageSettings } from '@/lib/homepage'
+import { getSiteSettings } from '@/lib/settings'
 import { pickLocale } from '@/lib/cms'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
+
+// Réseaux sociaux par défaut (repli si non renseignés dans l'admin).
+const DEFAULT_SOCIALS = {
+  instagram: 'https://www.instagram.com/dardmana',
+  facebook: 'https://www.facebook.com/dardmana',
+  tiktok: 'https://www.tiktok.com/@dardmana',
+}
 
 export default async function HomePage({
   params,
@@ -22,10 +30,18 @@ export default async function HomePage({
   setRequestLocale(locale)
 
   // Contenu éditable de la page d'accueil (admin CMS).
-  const homepage = await getHomepageSettings()
+  const [homepage, settings] = await Promise.all([getHomepageSettings(), getSiteSettings()])
   const heroTitle = pickLocale(homepage, 'heroTitle', locale)
   const heroSubtitle = pickLocale(homepage, 'heroSubtitle', locale)
   const newsletterTitle = pickLocale(homepage, 'newsletterTitle', locale)
+
+  // sameAs des données structurées : réseaux sociaux configurés en admin.
+  const sameAs = [
+    settings.socialInstagram || DEFAULT_SOCIALS.instagram,
+    settings.socialFacebook || DEFAULT_SOCIALS.facebook,
+    settings.socialTikTok || DEFAULT_SOCIALS.tiktok,
+  ]
+  const phone = settings.phone || '+212600000000'
 
   // Témoignages mis en avant (fallback statique géré dans le composant si vide).
   const featuredRaw = await prisma.guestbookEntry
@@ -74,15 +90,25 @@ export default async function HomePage({
       "Dar Dmana — maison d'artisanat marocain de luxe : chapelets, parfums, cosmétiques et créations d'exception.",
     url: `${SITE_URL}/${locale}`,
     image: `${SITE_URL}/icon`,
-    email: 'contact@dardmana.ma',
-    telephone: '+212600000000',
+    email: settings.email || 'contact@dardmana.ma',
+    telephone: phone,
     priceRange: 'MAD',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: settings.address || undefined,
       addressLocality: 'Casablanca',
       addressCountry: 'MA',
     },
     areaServed: 'MA',
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '09:00',
+        closes: '19:00',
+      },
+    ],
+    sameAs,
     ...(ratingCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
@@ -101,14 +127,12 @@ export default async function HomePage({
     url: `${SITE_URL}/${locale}`,
     logo: `${SITE_URL}/logo.png`,
     description: "Dar Dmana — l'artisanat marocain réinventé, créations d'exception et élégance intemporelle.",
-    sameAs: [
-      'https://www.instagram.com/dardmana',
-      'https://www.facebook.com/dardmana',
-    ],
+    sameAs,
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
-      email: 'contact@dardmana.ma',
+      telephone: phone,
+      email: settings.email || 'contact@dardmana.ma',
       areaServed: 'MA',
       availableLanguage: ['fr', 'ar', 'en'],
     },

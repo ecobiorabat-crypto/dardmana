@@ -15,17 +15,68 @@ import { Toast } from '@/components/ui/Toast'
 import { MetaPixel } from '@/components/analytics/MetaPixel'
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Dar Dmana — Maison de luxe marocaine',
-    template: '%s · Dar Dmana',
-  },
-  description:
-    'Dar Dmana — l\u2019artisanat marocain réinventé. Créations d\u2019exception, élégance intemporelle.',
-  openGraph: {
-    type: 'website',
-    siteName: 'Dar Dmana',
-  },
+const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
+const FB_APP_ID = process.env.NEXT_PUBLIC_FB_APP_ID
+
+const SITE_NAME = 'Dar Dmana — Artisanat Marocain Authentique'
+
+const DESCRIPTIONS: Record<string, string> = {
+  fr: "Première marque marocaine de chapelets artisanaux. Bois d'olivier, oud salib, oud anab — faits main au Maroc. Livraison 24h.",
+  ar: 'أول علامة مغربية للسبح المصنوعة يدويًا. خشب الزيتون، عود الصليب، عود العناب — صناعة يدوية بالمغرب. توصيل خلال 24 ساعة.',
+  en: "Morocco's leading handmade prayer-bead (tasbih) brand. Olive wood, oud salib, oud anab — handcrafted in Morocco. 24h delivery.",
+}
+
+const KEYWORDS = [
+  'chapelet marocain',
+  'سبحة',
+  'rosaire artisanal',
+  'oud salib',
+  'dar dmana',
+  'artisanat maroc',
+  'tasbih',
+  'oud anab',
+]
+
+const OG_LOCALE: Record<string, string> = { fr: 'fr_FR', ar: 'ar_MA', en: 'en_US' }
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const description = DESCRIPTIONS[locale] ?? DESCRIPTIONS.fr
+  const url = `${SITE_URL}/${locale}`
+
+  const languages: Record<string, string> = {}
+  for (const l of routing.locales) languages[l] = `${SITE_URL}/${l}`
+  languages['x-default'] = `${SITE_URL}/${routing.defaultLocale}`
+
+  return {
+    title: {
+      default: SITE_NAME,
+      template: '%s | Dar Dmana — Artisanat Marocain Authentique',
+    },
+    description,
+    keywords: KEYWORDS,
+    robots: { index: true, follow: true },
+    alternates: { canonical: url, languages },
+    openGraph: {
+      type: 'website',
+      siteName: 'Dar Dmana',
+      locale: OG_LOCALE[locale] ?? 'fr_FR',
+      url,
+      title: SITE_NAME,
+      description,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@dar_dmana_tassebih',
+      title: SITE_NAME,
+      description,
+    },
+    ...(FB_APP_ID && { other: { 'fb:app_id': FB_APP_ID } }),
+  }
 }
 
 export function generateStaticParams() {

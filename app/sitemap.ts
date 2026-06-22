@@ -44,16 +44,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const staticEntries: MetadataRoute.Sitemap = [
+    // Page d'accueil — priorité maximale.
     ...entriesFor('', { changeFrequency: 'daily', priority: 1 }),
-    ...entriesFor('/catalogue', { changeFrequency: 'daily', priority: 0.9 }),
+    // Pages principales — priorité 0.7.
+    ...entriesFor('/catalogue', { changeFrequency: 'daily', priority: 0.7 }),
+    ...entriesFor('/nouveautes', { changeFrequency: 'daily', priority: 0.7 }),
+    ...entriesFor('/collections', { changeFrequency: 'weekly', priority: 0.7 }),
+    ...entriesFor('/notre-histoire', { changeFrequency: 'monthly', priority: 0.7 }),
+    ...entriesFor('/contact', { changeFrequency: 'monthly', priority: 0.7 }),
+    ...entriesFor('/livre-dor', { changeFrequency: 'weekly', priority: 0.7 }),
   ]
 
+  // Catégories — priorité 0.8.
   const categoryEntries = categories.flatMap((c) =>
     entriesFor(`/catalogue/${c.slug}`, { lastModified: c.updatedAt, changeFrequency: 'weekly', priority: 0.8 }),
   )
 
+  // Produits actifs × locales — priorité 0.9, hebdomadaire.
   const productEntries = products.flatMap((p) =>
-    entriesFor(`/produit/${p.slug}`, { lastModified: p.updatedAt, changeFrequency: 'weekly', priority: 0.7 }),
+    entriesFor(`/produit/${p.slug}`, { lastModified: p.updatedAt, changeFrequency: 'weekly', priority: 0.9 }),
   )
 
   return [...staticEntries, ...categoryEntries, ...productEntries]

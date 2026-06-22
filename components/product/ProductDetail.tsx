@@ -141,7 +141,7 @@ export function ProductDetail({
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[55fr_45fr] lg:gap-14">
       {/* Galerie */}
-      <ImageGallery images={product.images} alt={name} />
+      <ImageGallery images={product.images} alt={`${name} — Dar Dmana`} />
 
       {/* Infos */}
       <div className="lg:py-2">
