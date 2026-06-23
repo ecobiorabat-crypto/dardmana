@@ -14,6 +14,8 @@ export interface SiteSettingsData {
   socialInstagram: string | null
   socialFacebook: string | null
   socialTikTok: string | null
+  whatsappNotificationsEnabled: boolean
+  whatsappNotificationNumber: string | null
 }
 
 const DEFAULTS: SiteSettingsData = {
@@ -28,6 +30,8 @@ const DEFAULTS: SiteSettingsData = {
   socialInstagram: null,
   socialFacebook: null,
   socialTikTok: null,
+  whatsappNotificationsEnabled: false,
+  whatsappNotificationNumber: null,
 }
 
 /**
@@ -50,6 +54,8 @@ export async function getSiteSettings(): Promise<SiteSettingsData> {
       socialInstagram: row.socialInstagram,
       socialFacebook: row.socialFacebook,
       socialTikTok: row.socialTikTok,
+      whatsappNotificationsEnabled: row.whatsappNotificationsEnabled,
+      whatsappNotificationNumber: row.whatsappNotificationNumber,
     }
   } catch {
     return DEFAULTS
@@ -63,10 +69,14 @@ export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
     'logoUrl', 'logoUrlDark', 'faviconUrl',
     'phone', 'whatsapp', 'address', 'email',
     'socialInstagram', 'socialFacebook', 'socialTikTok',
+    'whatsappNotificationNumber',
   ] as const
 
   const update: Record<string, unknown> = {}
   if (data.siteName !== undefined) update.siteName = data.siteName
+  if (data.whatsappNotificationsEnabled !== undefined) {
+    update.whatsappNotificationsEnabled = data.whatsappNotificationsEnabled
+  }
   for (const f of fields) {
     if (data[f] !== undefined) update[f] = data[f] ?? null
   }
@@ -86,6 +96,8 @@ export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
       socialInstagram: data.socialInstagram ?? null,
       socialFacebook: data.socialFacebook ?? null,
       socialTikTok: data.socialTikTok ?? null,
+      whatsappNotificationsEnabled: data.whatsappNotificationsEnabled ?? false,
+      whatsappNotificationNumber: data.whatsappNotificationNumber ?? null,
     },
     update,
   })

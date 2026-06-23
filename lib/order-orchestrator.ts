@@ -6,6 +6,7 @@ import type { DeliveryPayload, DeliveryProvider } from '@/lib/delivery/types'
 import { ManualDeliveryProvider } from '@/lib/delivery/providers/manual'
 import { createDeliveryProvider } from '@/lib/delivery/factory'
 import { getDeliverySettings } from '@/lib/delivery/settings'
+import { notifyAdminWhatsApp } from '@/lib/notify-whatsapp'
 
 // Ré-exports pour compatibilité avec les imports existants éventuels.
 export type {
@@ -99,6 +100,17 @@ export class OrderOrchestrator {
     try {
       // 1b. Panier abandonné : marque comme récupéré (commande finalisée avec succès).
       await this.markCartRecovered(order)
+
+      // 1c. Notification WhatsApp admin (nouvelle commande) — non bloquant.
+      await notifyAdminWhatsApp({
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        totalMad: Number(order.totalMad),
+        paymentMethod: order.paymentMethod,
+        source: order.source,
+        orderItems: order.orderItems.map((it) => ({ productName: it.productName, quantity: it.quantity })),
+      }).catch((err) => console.error('[Orchestrator] Notif WhatsApp admin échouée (non bloquant):', err))
 
       // 2. Réserver le stock
       for (const item of order.orderItems) {

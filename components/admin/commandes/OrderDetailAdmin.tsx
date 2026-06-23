@@ -52,6 +52,14 @@ export interface AdminOrder {
   payments: { id: string; method: string; status: string; amount: number | string; currency: string; createdAt: string; providerRef: string | null }[]
 }
 
+const PAY_LABELS_AR: Record<string, string> = {
+  COD: 'الدفع عند الاستلام',
+  WHATSAPP: 'واتساب',
+  CMI: 'CMI',
+  STRIPE: 'Stripe',
+  PAYPAL: 'PayPal',
+}
+
 const STATUSES = ['NEW', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']
 const STATUS_LABELS: Record<string, string> = {
   NEW: 'Nouvelle', CONFIRMED: 'Confirmée', PROCESSING: 'En préparation',
@@ -101,6 +109,37 @@ export function OrderDetailAdmin({ order }: { order: AdminOrder }) {
 
   const a = order.shippingAddress ?? {}
   const track = order.trackingNumber ? trackingUrl(order.carrier, order.trackingNumber) : null
+
+  // ── WhatsApp manuel (sans API : ouvre wa.me directement) ──
+  const waPhone = order.customerPhone.replace(/\D/g, '')
+  const openWhatsApp = (message: string) => {
+    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
+  }
+
+  const sendConfirmation = () => {
+    const produits = order.orderItems.map((it) => `${it.productName} (×${it.quantity})`).join('، ')
+    const msg =
+      `السلام عليكم ${order.customerName} 🌿\n` +
+      `تأكيد طلبك من دار ضمانة ✅\n` +
+      `رقم الطلب : ${order.orderNumber}\n` +
+      `المنتجات : ${produits}\n` +
+      `المبلغ الإجمالي : ${Number(order.totalMad)} درهم\n` +
+      `طريقة الدفع : ${PAY_LABELS_AR[order.paymentMethod] ?? order.paymentMethod}\n` +
+      `سيتم التواصل معك لتحديد موعد التسليم.\n` +
+      `شكراً لثقتك في دار ضمانة 🤍`
+    openWhatsApp(msg)
+  }
+
+  const sendTracking = () => {
+    const msg =
+      `السلام عليكم ${order.customerName} 🌿\n` +
+      `طلبك في الطريق إليك 🚚\n` +
+      `رقم الطلب : ${order.orderNumber}\n` +
+      `رقم التتبع : ${tracking || '—'}\n` +
+      `الناقل : ${carrier || '—'}\n` +
+      `دار ضمانة — الأصالة في كل قطعة 🤍`
+    openWhatsApp(msg)
+  }
 
   return (
     <div className="space-y-6">
@@ -208,6 +247,32 @@ export function OrderDetailAdmin({ order }: { order: AdminOrder }) {
               <p className="mt-1 text-sm text-[var(--texte)]">{a.fullName ?? order.customerName}</p>
               <p className="text-sm text-[var(--texte-doux)]">{formatAddress(a)}</p>
             </div>
+          </section>
+
+          {/* WhatsApp — boutons manuels (sans API) */}
+          <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+            <h2 className="mb-3 font-titre text-lg text-[var(--vert-fonce)]">WhatsApp</h2>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={sendConfirmation}
+                disabled={!waPhone}
+                className="flex items-center justify-center gap-2 bg-[#25D366] px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                ✓ Confirmer via WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={sendTracking}
+                disabled={!waPhone}
+                className="flex items-center justify-center gap-2 border border-[#25D366] px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-[#128C7E] transition-colors hover:bg-[#25D366]/10 disabled:opacity-40"
+              >
+                🚚 Envoyer le suivi WhatsApp
+              </button>
+            </div>
+            {!waPhone && (
+              <p className="mt-2 text-xs text-[var(--texte-doux)]">Aucun numéro de téléphone client.</p>
+            )}
           </section>
 
           {/* Livraison / actions */}

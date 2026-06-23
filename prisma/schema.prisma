@@ -487,6 +487,10 @@ model SiteSettings {
   socialFacebook  String?
   socialTikTok    String?
 
+  // Notifications WhatsApp admin (nouvelle commande → numéro perso, via CallMeBot).
+  whatsappNotificationsEnabled Boolean @default(false)
+  whatsappNotificationNumber   String?
+
   updatedAt   DateTime @updatedAt @default(now())
 }
 

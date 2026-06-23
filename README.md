@@ -192,6 +192,44 @@ Toutes les variables sont listées dans `.env.example`. Détail :
 
 ---
 
+## 8b. Notifications WhatsApp admin via CallMeBot (gratuit, sans API Business)
+
+Reçois une alerte WhatsApp sur ton téléphone à **chaque nouvelle commande**, sans
+WhatsApp Business API. On utilise [CallMeBot](https://www.callmebot.com), gratuit.
+
+**Obtenir ta clé API (≈ 2 minutes) :**
+
+1. Enregistre le numéro **+34 644 59 77 81** dans tes contacts.
+2. Depuis WhatsApp, envoie-lui le message exact :
+   `I allow callmebot.com to send me messages`
+3. Tu reçois en réponse ton **apikey** (ex. `123456`).
+
+**Configuration :**
+
+1. Dans `.env.local` (et sur Vercel → Project Settings → Environment Variables) :
+   ```bash
+   CALLMEBOT_API_KEY=123456          # la clé reçue
+   CALLMEBOT_PHONE=212600000000      # ton numéro (défaut si non défini en admin)
+   ```
+2. Dans l'admin **Paramètres → Identité & logo → Notifications WhatsApp** :
+   - Active le toggle **« Recevoir les commandes sur WhatsApp »**.
+   - Renseigne ton **Numéro WhatsApp admin** (celui enregistré chez CallMeBot).
+3. À chaque commande traitée par l'orchestrateur, tu reçois un message :
+   ```
+   🛒 Nouvelle commande Dar Dmana !
+   N° DD-XXXX
+   Client : … — +212…
+   Produits : …
+   Total : … MAD
+   Paiement : COD
+   Source : SHOP
+   ```
+
+> L'envoi est **non bloquant** : si la clé est absente ou CallMeBot indisponible,
+> la commande est créée normalement (seul un log d'erreur est écrit).
+
+---
+
 ## 9. Guide d'utilisation admin (premiers pas)
 
 1. **Créer le mot de passe admin** : le hash est un SHA-256 du mot de passe en clair.

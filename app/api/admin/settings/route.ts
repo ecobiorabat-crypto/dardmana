@@ -21,6 +21,9 @@ const SettingsPatchSchema = z.object({
   socialInstagram: urlOrEmpty,
   socialFacebook: urlOrEmpty,
   socialTikTok: urlOrEmpty,
+  // Notifications WhatsApp admin.
+  whatsappNotificationsEnabled: z.boolean().optional(),
+  whatsappNotificationNumber: textOrEmpty,
 })
 
 export async function GET(request: NextRequest) {
