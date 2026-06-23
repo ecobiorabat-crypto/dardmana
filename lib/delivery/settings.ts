@@ -8,18 +8,20 @@ export interface DeliverySettingsServer {
   activeProvider: DeliveryProviderId
   amanaApiKey: string
   ctmApiKey: string
+  senditApiKey: string
 }
 
 export interface DeliverySettingsPublic {
   activeProvider: DeliveryProviderId
   amanaConfigured: boolean
   ctmConfigured: boolean
+  senditConfigured: boolean
   updatedAt: string | null
   updatedBy: string | null
 }
 
 function normalizeProvider(v: string | undefined): DeliveryProviderId {
-  return v === 'AMANA' || v === 'CTM' ? v : 'MANUAL'
+  return v === 'AMANA' || v === 'CTM' || v === 'SENDIT' ? v : 'MANUAL'
 }
 
 /** Lecture serveur (clés déchiffrées) — ne jamais renvoyer au client. */
@@ -30,9 +32,10 @@ export async function getDeliverySettings(): Promise<DeliverySettingsServer> {
       activeProvider: normalizeProvider(row?.activeProvider),
       amanaApiKey: decryptSecret(row?.amanaApiKey),
       ctmApiKey: decryptSecret(row?.ctmApiKey),
+      senditApiKey: decryptSecret(row?.senditApiKey),
     }
   } catch {
-    return { activeProvider: 'MANUAL', amanaApiKey: '', ctmApiKey: '' }
+    return { activeProvider: 'MANUAL', amanaApiKey: '', ctmApiKey: '', senditApiKey: '' }
   }
 }
 
@@ -45,6 +48,7 @@ export async function getDeliverySettingsPublic(): Promise<DeliverySettingsPubli
     activeProvider: normalizeProvider(row?.activeProvider),
     amanaConfigured: Boolean(decryptSecret(row?.amanaApiKey)),
     ctmConfigured: Boolean(decryptSecret(row?.ctmApiKey)),
+    senditConfigured: Boolean(decryptSecret(row?.senditApiKey)),
     updatedAt: row ? row.updatedAt.toISOString() : null,
     updatedBy: row?.updatedBy ?? null,
   }
@@ -55,6 +59,7 @@ export interface DeliverySettingsUpdate {
   /** Texte clair ; chaîne vide / absent = inchangé (write-only). */
   amanaApiKey?: string
   ctmApiKey?: string
+  senditApiKey?: string
   updatedBy?: string
 }
 
@@ -63,6 +68,7 @@ export async function upsertDeliverySettings(data: DeliverySettingsUpdate) {
   if (data.activeProvider) update.activeProvider = data.activeProvider
   if (data.amanaApiKey) update.amanaApiKey = encryptSecret(data.amanaApiKey)
   if (data.ctmApiKey) update.ctmApiKey = encryptSecret(data.ctmApiKey)
+  if (data.senditApiKey) update.senditApiKey = encryptSecret(data.senditApiKey)
   if (data.updatedBy) update.updatedBy = data.updatedBy
 
   return prisma.deliverySettings.upsert({
@@ -72,6 +78,7 @@ export async function upsertDeliverySettings(data: DeliverySettingsUpdate) {
       activeProvider: data.activeProvider ?? 'MANUAL',
       amanaApiKey: data.amanaApiKey ? encryptSecret(data.amanaApiKey) : null,
       ctmApiKey: data.ctmApiKey ? encryptSecret(data.ctmApiKey) : null,
+      senditApiKey: data.senditApiKey ? encryptSecret(data.senditApiKey) : null,
       updatedBy: data.updatedBy ?? null,
     },
     update,

@@ -5,10 +5,11 @@ import { hasPermission } from '@/lib/auth/permissions'
 import { getDeliverySettingsPublic, upsertDeliverySettings } from '@/lib/delivery/settings'
 
 const PatchSchema = z.object({
-  activeProvider: z.enum(['MANUAL', 'AMANA', 'CTM']).optional(),
+  activeProvider: z.enum(['MANUAL', 'AMANA', 'CTM', 'SENDIT']).optional(),
   // Clés en clair à la saisie ; '' = inchangé (jamais renvoyées par le GET).
   amanaApiKey: z.string().trim().max(300).optional(),
   ctmApiKey: z.string().trim().max(300).optional(),
+  senditApiKey: z.string().trim().max(300).optional(),
 })
 
 export async function GET(request: NextRequest) {

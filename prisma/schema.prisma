@@ -610,6 +610,7 @@ model DeliverySettings {
   activeProvider String   @default("MANUAL")
   amanaApiKey    String?
   ctmApiKey      String?
+  senditApiKey   String?
   updatedAt      DateTime @updatedAt @default(now())
   updatedBy      String?
 }

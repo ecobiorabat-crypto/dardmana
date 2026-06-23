@@ -18,6 +18,7 @@ export type {
 export { ManualDeliveryProvider } from '@/lib/delivery/providers/manual'
 export { AmanaDeliveryProvider } from '@/lib/delivery/providers/amana'
 export { CTMDeliveryProvider } from '@/lib/delivery/providers/ctm'
+export { SenditDeliveryProvider } from '@/lib/delivery/providers/sendit'
 
 /** Suffixe aléatoire lisible (sans caractères ambigus) pour les codes promo. */
 function randomSuffix(len: number): string {
@@ -67,6 +68,7 @@ export class OrderOrchestrator {
       return createDeliveryProvider(settings.activeProvider, {
         amanaApiKey: settings.amanaApiKey || undefined,
         ctmApiKey: settings.ctmApiKey || undefined,
+        senditApiKey: settings.senditApiKey || undefined,
       })
     } catch {
       return new ManualDeliveryProvider()

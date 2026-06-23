@@ -8,8 +8,9 @@ const inputCls =
   'w-full border border-[var(--bordure)] px-3 py-2 text-sm outline-none focus:border-[var(--or-royal)]'
 const labelCls = 'mb-1 block text-xs uppercase tracking-[0.1em] text-[var(--texte-doux)]'
 
-const PROVIDERS: { id: 'MANUAL' | 'AMANA' | 'CTM'; label: string; hint: string }[] = [
+const PROVIDERS: { id: 'MANUAL' | 'AMANA' | 'CTM' | 'SENDIT'; label: string; hint: string }[] = [
   { id: 'MANUAL', label: 'Manuel', hint: 'Fiche de livraison à traiter à la main (par défaut).' },
+  { id: 'SENDIT', label: 'Sendit.ma', hint: 'Nécessite une clé API Sendit.' },
   { id: 'AMANA', label: 'Amana (Poste Maroc)', hint: 'Nécessite une clé API Amana.' },
   { id: 'CTM', label: 'CTM Messagerie', hint: 'Nécessite une clé API CTM.' },
 ]
@@ -18,12 +19,16 @@ export function DeliveryForm({ initial }: { initial: DeliverySettingsPublic }) {
   const [active, setActive] = useState(initial.activeProvider)
   const [amanaKey, setAmanaKey] = useState('')
   const [ctmKey, setCtmKey] = useState('')
+  const [senditKey, setSenditKey] = useState('')
   const [amanaConfigured, setAmanaConfigured] = useState(initial.amanaConfigured)
   const [ctmConfigured, setCtmConfigured] = useState(initial.ctmConfigured)
+  const [senditConfigured, setSenditConfigured] = useState(initial.senditConfigured)
   const [updatedAt, setUpdatedAt] = useState(initial.updatedAt)
   const [updatedBy, setUpdatedBy] = useState(initial.updatedBy)
   const [saving, setSaving] = useState(false)
   const [note, setNote] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null)
 
   async function handleSave() {
     setSaving(true)
@@ -32,6 +37,7 @@ export function DeliveryForm({ initial }: { initial: DeliverySettingsPublic }) {
       const body: Record<string, string> = { activeProvider: active }
       if (amanaKey.trim()) body.amanaApiKey = amanaKey.trim()
       if (ctmKey.trim()) body.ctmApiKey = ctmKey.trim()
+      if (senditKey.trim()) body.senditApiKey = senditKey.trim()
 
       const res = await fetch('/api/admin/delivery', {
         method: 'PATCH',
@@ -44,15 +50,37 @@ export function DeliveryForm({ initial }: { initial: DeliverySettingsPublic }) {
 
       setAmanaConfigured(data.settings.amanaConfigured)
       setCtmConfigured(data.settings.ctmConfigured)
+      setSenditConfigured(data.settings.senditConfigured)
       setUpdatedAt(data.settings.updatedAt)
       setUpdatedBy(data.settings.updatedBy)
       setAmanaKey('')
       setCtmKey('')
+      setSenditKey('')
       setNote({ type: 'ok', text: 'Paramètres de livraison enregistrés.' })
     } catch (err) {
       setNote({ type: 'err', text: err instanceof Error ? err.message : 'Erreur' })
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleTestSendit() {
+    setTesting(true)
+    setTestResult(null)
+    try {
+      const res = await fetch('/api/admin/delivery/test-sendit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        // Si une clé est saisie, on la teste ; sinon le serveur teste la clé enregistrée.
+        body: JSON.stringify(senditKey.trim() ? { apiKey: senditKey.trim() } : {}),
+      })
+      const data = (await res.json()) as { ok?: boolean; message?: string; error?: string }
+      setTestResult({ ok: Boolean(data.ok), text: data.message ?? data.error ?? 'Réponse inattendue.' })
+    } catch {
+      setTestResult({ ok: false, text: 'Impossible de lancer le test.' })
+    } finally {
+      setTesting(false)
     }
   }
 
@@ -95,6 +123,9 @@ export function DeliveryForm({ initial }: { initial: DeliverySettingsPublic }) {
             <span>
               <span className="block text-sm font-medium text-[var(--texte)]">
                 {p.label}
+                {p.id === 'SENDIT' && senditConfigured && (
+                  <span className="ms-2 text-xs text-[var(--vert-moyen)]">● clé configurée</span>
+                )}
                 {p.id === 'AMANA' && amanaConfigured && (
                   <span className="ms-2 text-xs text-[var(--vert-moyen)]">● clé configurée</span>
                 )}
@@ -111,6 +142,38 @@ export function DeliveryForm({ initial }: { initial: DeliverySettingsPublic }) {
       {/* Credentials (write-only) */}
       <fieldset className="space-y-4">
         <legend className="font-titre text-lg text-[var(--vert-fonce)]">Clés API (saisie unique)</legend>
+
+        {/* Sendit + test de connexion */}
+        <div>
+          <label htmlFor="senditKey" className={labelCls}>
+            Clé API Sendit {senditConfigured && <span className="text-[var(--vert-moyen)]">(déjà enregistrée)</span>}
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="senditKey"
+              type="password"
+              autoComplete="off"
+              className={inputCls}
+              value={senditKey}
+              onChange={(e) => setSenditKey(e.target.value)}
+              placeholder={senditConfigured ? '•••••••••• (laisser vide pour conserver)' : 'Coller la clé Sendit'}
+            />
+            <button
+              type="button"
+              onClick={handleTestSendit}
+              disabled={testing || (!senditKey.trim() && !senditConfigured)}
+              className="shrink-0 border border-[var(--vert-fonce)] px-4 text-xs font-medium uppercase tracking-[0.1em] text-[var(--vert-fonce)] transition-colors hover:bg-[var(--vert-fonce)] hover:text-[var(--creme)] disabled:opacity-50"
+            >
+              {testing ? 'Test…' : 'Tester la connexion'}
+            </button>
+          </div>
+          {testResult && (
+            <p className={`mt-2 text-xs ${testResult.ok ? 'text-[var(--vert-moyen)]' : 'text-[var(--erreur)]'}`}>
+              {testResult.ok ? '✓ ' : '✗ '}{testResult.text}
+            </p>
+          )}
+        </div>
+
         <div>
           <label htmlFor="amanaKey" className={labelCls}>
             Clé API Amana {amanaConfigured && <span className="text-[var(--vert-moyen)]">(déjà enregistrée)</span>}

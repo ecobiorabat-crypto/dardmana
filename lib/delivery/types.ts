@@ -39,4 +39,4 @@ export interface DeliveryProvider {
 }
 
 /** Identifiants des providers disponibles (sélecteur admin). */
-export type DeliveryProviderId = 'MANUAL' | 'AMANA' | 'CTM'
+export type DeliveryProviderId = 'MANUAL' | 'AMANA' | 'CTM' | 'SENDIT'
