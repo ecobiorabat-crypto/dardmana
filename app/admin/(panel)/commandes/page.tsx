@@ -84,7 +84,18 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
 
   return (
     <div>
-      <PageHeader title="Commandes" subtitle={`${total} commande${total > 1 ? 's' : ''}`} />
+      <PageHeader
+        title="Commandes"
+        subtitle={`${total} commande${total > 1 ? 's' : ''}`}
+        action={
+          <Link
+            href="/admin/commandes/nouvelle"
+            className="bg-[var(--vert-fonce)] px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--creme)] transition-colors hover:bg-[var(--vert-moyen)]"
+          >
+            + Nouvelle commande
+          </Link>
+        }
+      />
       <OrdersFilters />
 
       <AdminCard className="!p-0">

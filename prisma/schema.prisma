@@ -25,6 +25,7 @@ enum PaymentMethod {
   CMI
   STRIPE
   PAYPAL
+  WHATSAPP
 }
 
 enum PaymentStatus {
