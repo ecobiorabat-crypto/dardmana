@@ -5,6 +5,15 @@ import { verifyAdminSession } from '@/lib/auth/admin'
 import { hasPermission } from '@/lib/auth/permissions'
 
 const PatchSchema = z.object({
+  customerName: z.string().trim().min(1).max(120).optional(),
+  customerCity: z.string().trim().max(120).nullable().optional(),
+  message: z.string().trim().min(1).max(2000).optional(),
+  rating: z.number().int().min(1).max(5).nullable().optional(),
+  mediaUrl: z.string().trim().url().nullable().optional(),
+  mediaType: z.enum(['PHOTO', 'VIDEO']).nullable().optional(),
+  source: z.enum(['WEBSITE', 'WHATSAPP', 'TIKTOK', 'INSTAGRAM']).optional(),
+  productTag: z.string().trim().max(160).nullable().optional(),
+  isVerifiedBuyer: z.boolean().optional(),
   isApproved: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 })

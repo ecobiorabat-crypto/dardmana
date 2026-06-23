@@ -1,6 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
 
 export interface AdminGuestbookEntry {
@@ -40,11 +42,24 @@ export function GuestbookModeration({
   initialEntries: AdminGuestbookEntry[]
   initialPending: number
 }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [tab, setTab] = useState<TabId>('pending')
   const [entries, setEntries] = useState<AdminGuestbookEntry[]>(initialEntries)
   const [pending, setPending] = useState(initialPending)
   const [loading, setLoading] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+
+  // Toast de succès après retour de la page d'édition (?updated=1).
+  useEffect(() => {
+    if (searchParams.get('updated') === '1') {
+      setToast('Témoignage modifié avec succès')
+      router.replace('/admin/livre-dor')
+      const timer = window.setTimeout(() => setToast(null), 4000)
+      return () => window.clearTimeout(timer)
+    }
+  }, [searchParams, router])
 
   const fetchTab = useCallback(async (next: TabId) => {
     setLoading(true)
@@ -94,6 +109,16 @@ export function GuestbookModeration({
 
   return (
     <div>
+      {/* Toast de succès (édition) */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-md border border-[var(--succes)]/40 bg-[var(--blanc)] px-4 py-3 text-sm text-[var(--succes)] shadow-[0_12px_30px_-12px_rgba(20,19,15,0.4)]">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {toast}
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-2">
         {TABS.map((tabItem) => (
@@ -178,29 +203,36 @@ export function GuestbookModeration({
                 </p>
               </div>
 
-              {/* Actions */}
+              {/* Actions — toutes visibles directement */}
               <div className="flex shrink-0 flex-wrap gap-2">
-                {!entry.isApproved ? (
-                  <button
-                    type="button"
-                    disabled={busyId === entry.id}
-                    onClick={() => patch(entry.id, { isApproved: true })}
-                    className="rounded border border-[var(--vert-moyen)] px-3 py-1.5 text-xs text-[var(--vert-moyen)] transition-colors hover:bg-[var(--vert-moyen)] hover:text-white disabled:opacity-50"
-                  >
-                    ✓ Approuver
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={busyId === entry.id}
-                    onClick={() => patch(entry.id, { isApproved: false, isFeatured: false })}
-                    className="rounded border border-[var(--bordure)] px-3 py-1.5 text-xs text-[var(--texte-doux)] transition-colors hover:border-[var(--alerte)] hover:text-[var(--alerte)] disabled:opacity-50"
-                  >
-                    ✗ Retirer
-                  </button>
-                )}
+                <Link
+                  href={`/admin/livre-dor/${entry.id}`}
+                  title="Modifier"
+                  className="inline-flex items-center gap-1.5 rounded border border-[var(--bordure)] px-3 py-1.5 text-xs text-[var(--texte)] transition-colors hover:border-[var(--vert-fonce)] hover:text-[var(--vert-fonce)]"
+                >
+                  ✎ Modifier
+                </Link>
                 <button
                   type="button"
+                  title="Approuver"
+                  disabled={busyId === entry.id || entry.isApproved}
+                  onClick={() => patch(entry.id, { isApproved: true })}
+                  className="rounded border border-[var(--vert-moyen)] px-3 py-1.5 text-xs text-[var(--vert-moyen)] transition-colors hover:bg-[var(--vert-moyen)] hover:text-white disabled:opacity-40"
+                >
+                  ✓ Approuver
+                </button>
+                <button
+                  type="button"
+                  title="Refuser (retirer de la publication)"
+                  disabled={busyId === entry.id || !entry.isApproved}
+                  onClick={() => patch(entry.id, { isApproved: false, isFeatured: false })}
+                  className="rounded border border-[var(--bordure)] px-3 py-1.5 text-xs text-[var(--texte-doux)] transition-colors hover:border-[var(--erreur)] hover:text-[var(--erreur)] disabled:opacity-40"
+                >
+                  ✗ Refuser
+                </button>
+                <button
+                  type="button"
+                  title="Mettre en avant"
                   disabled={busyId === entry.id}
                   onClick={() => patch(entry.id, { isFeatured: !entry.isFeatured, isApproved: true })}
                   className={cn(
@@ -214,11 +246,12 @@ export function GuestbookModeration({
                 </button>
                 <button
                   type="button"
+                  title="Supprimer définitivement"
                   disabled={busyId === entry.id}
                   onClick={() => remove(entry.id)}
                   className="rounded border border-[var(--bordure)] px-3 py-1.5 text-xs text-[var(--texte-doux)] transition-colors hover:border-[var(--erreur)] hover:text-[var(--erreur)] disabled:opacity-50"
                 >
-                  🗑
+                  🗑 Supprimer
                 </button>
               </div>
             </div>
