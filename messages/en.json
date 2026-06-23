@@ -52,7 +52,9 @@
     "search": "Search",
     "login": "Sign in",
     "logout": "Sign out",
-    "menu": "Menu"
+    "menu": "Menu",
+    "products": "Products",
+    "allCatalogue": "View all products"
   },
   "Hero": {
     "eyebrow": "Moroccan luxury house",

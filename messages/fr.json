@@ -52,7 +52,9 @@
     "search": "Recherche",
     "login": "Connexion",
     "logout": "Déconnexion",
-    "menu": "Menu"
+    "menu": "Menu",
+    "products": "Produits",
+    "allCatalogue": "Voir tout le catalogue"
   },
   "Hero": {
     "eyebrow": "Maison de luxe marocaine",

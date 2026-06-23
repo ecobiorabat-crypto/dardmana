@@ -6,13 +6,15 @@ import { localeFromPathname } from '@/lib/utils/locale'
 
 export interface NavLink {
   /** Clé de traduction dans la section `Nav` des catalogues de messages. */
-  key: 'collections' | 'new' | 'story' | 'guestbook' | 'contact'
+  key: 'products' | 'new' | 'story' | 'guestbook' | 'contact'
   href: string
+  /** Affiche un mega-menu de catégories (desktop) / accordéon (mobile). */
+  megaMenu?: boolean
 }
 
 /** Liens de navigation principaux (href relatifs, sans préfixe de locale). */
 export const NAV_LINKS: NavLink[] = [
-  { key: 'collections', href: '/collections' },
+  { key: 'products', href: '/catalogue', megaMenu: true },
   { key: 'new', href: '/nouveautes' },
   { key: 'story', href: '/notre-histoire' },
   { key: 'guestbook', href: '/livre-dor' },

@@ -7,6 +7,7 @@ import { useCartStore } from '@/store/cart'
 import { useWishlistStore } from '@/store/wishlist'
 import { useUiStore } from '@/store/ui'
 import { NAV_LINKS, localizedHref, useCurrentLocale } from './nav'
+import { ProductsMegaMenu } from './ProductsMegaMenu'
 import { useHydrated, useScrolled } from './hooks'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
@@ -138,20 +139,24 @@ export function Navbar({ siteName }: NavbarProps = {}) {
 
           {/* --- Liens centre (desktop) --- */}
           <ul className="hidden items-center gap-8 md:flex">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={localizedHref(locale, link.href)}
-                  className={cn(
-                    'relative text-xs font-medium uppercase tracking-[0.16em] text-current',
-                    'after:absolute after:-bottom-1.5 after:start-0 after:h-px after:w-0 after:bg-[var(--or-royal)]',
-                    'after:transition-all after:duration-300 hover:after:w-full',
-                  )}
-                >
-                  {t(`Nav.${link.key}`)}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.megaMenu ? (
+                <ProductsMegaMenu key={link.href} label={t(`Nav.${link.key}`)} href={link.href} />
+              ) : (
+                <li key={link.href}>
+                  <Link
+                    href={localizedHref(locale, link.href)}
+                    className={cn(
+                      'relative text-xs font-medium uppercase tracking-[0.16em] text-current',
+                      'after:absolute after:-bottom-1.5 after:start-0 after:h-px after:w-0 after:bg-[var(--or-royal)]',
+                      'after:transition-all after:duration-300 hover:after:w-full',
+                    )}
+                  >
+                    {t(`Nav.${link.key}`)}
+                  </Link>
+                </li>
+              ),
+            )}
           </ul>
 
           {/* --- Droite --- */}

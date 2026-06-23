@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import { useUiStore } from '@/store/ui'
 import { NAV_LINKS, localizedHref, useCurrentLocale } from './nav'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { MobileCategoriesAccordion } from './MobileCategoriesAccordion'
 import { cn } from '@/lib/utils/cn'
 
 const SWIPE_CLOSE = 80
@@ -92,20 +93,24 @@ export function MobileMenu() {
             </div>
 
             <ul className="flex flex-col px-2 py-4">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={localizedHref(locale, link.href)}
-                    onClick={close}
-                    className={cn(
-                      'block px-4 py-3.5 font-titre text-lg text-[var(--vert-fonce)]',
-                      'transition-colors duration-150 hover:text-[var(--or-royal)]',
-                    )}
-                  >
-                    {t(`Nav.${link.key}`)}
-                  </Link>
-                </li>
-              ))}
+              {NAV_LINKS.map((link) =>
+                link.megaMenu ? (
+                  <MobileCategoriesAccordion key={link.href} label={t(`Nav.${link.key}`)} onNavigate={close} />
+                ) : (
+                  <li key={link.href}>
+                    <Link
+                      href={localizedHref(locale, link.href)}
+                      onClick={close}
+                      className={cn(
+                        'block px-4 py-3.5 font-titre text-lg text-[var(--vert-fonce)]',
+                        'transition-colors duration-150 hover:text-[var(--or-royal)]',
+                      )}
+                    >
+                      {t(`Nav.${link.key}`)}
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
 
             <div className="mt-auto border-t border-[var(--bordure)] px-6 py-5">
