@@ -66,13 +66,14 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--sable)] via-[var(--sable-fonce)] to-[var(--sable)]" />
           )}
-          {/* Overlay chaud pour la lisibilité du texte */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--noir)]/65 via-[var(--noir)]/20 to-[var(--noir)]/10" />
+          {/* Overlay : sombre en bas (lisibilité du texte) → transparent en haut
+              (le centre/haut de l'image reste visible à 100%). */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--noir)]/80 via-[var(--noir)]/30 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      {/* Contenu */}
-      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-center px-4 pt-28 pb-24 text-center sm:px-6">
+      {/* Contenu : ancré EN BAS de l'image (ne cache pas le centre). */}
+      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-end px-4 pb-24 pt-28 text-center sm:px-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`txt-${index}`}

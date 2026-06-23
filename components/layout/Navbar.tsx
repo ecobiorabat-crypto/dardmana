@@ -100,10 +100,12 @@ export function Navbar({ siteName }: NavbarProps = {}) {
       <header
         className={cn(
           'relative w-full text-[var(--creme)]',
-          'transition-[background-color,box-shadow,backdrop-filter] duration-500 ease-out',
+          'transition-[background-color,box-shadow] duration-500 ease-out',
           solid
             ? 'bg-[var(--vert-fonce)] shadow-[0_10px_30px_-18px_rgba(20,19,15,0.6)]'
-            : 'bg-transparent',
+            : // En haut du Hero : dégradé sombre haut → transparent (style luxe,
+              // navbar lisible sur image claire) + ombre portée sur le texte/icônes.
+              'bg-gradient-to-b from-black/45 via-black/15 to-transparent [filter:drop-shadow(0_1px_6px_rgba(0,0,0,0.55))]',
         )}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8">
