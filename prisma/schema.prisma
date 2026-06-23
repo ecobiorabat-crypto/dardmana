@@ -545,6 +545,9 @@ model HomepageSettings {
   storytellingButtonTextAr String?
   storytellingButtonTextEn String?
 
+  // Image de la section savoir-faire (colonne droite) — gérée via l'admin.
+  storytellingImageUrl String?
+
   updatedAt DateTime @updatedAt @default(now())
 }
 

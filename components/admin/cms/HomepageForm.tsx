@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ImageUploader } from '@/components/admin/produits/ImageUploader'
 import { updateHomepageAction } from '@/app/admin/(panel)/cms/actions'
 import type { HomepageSettingsData } from '@/lib/homepage'
 
@@ -260,6 +261,41 @@ export function HomepageForm({
             </div>
           </div>
         ))}
+
+        {/* Image savoir-faire (colonne droite) */}
+        <div className="mt-6 border-t border-[var(--bordure)] pt-5">
+          <p className="mb-1 text-sm font-medium text-[var(--texte)]">Image savoir-faire</p>
+          <p className="mb-3 text-xs text-[var(--texte-doux)]">
+            Photo affichée dans la colonne droite. Laissez vide pour conserver le bloc par défaut.
+          </p>
+
+          {form.storytellingImageUrl ? (
+            <div className="mb-4 flex items-start gap-4">
+              <div className="relative h-40 w-32 overflow-hidden rounded-md border border-[var(--bordure)] bg-[var(--gris-perle)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.storytellingImageUrl} alt="Aperçu de l'image savoir-faire" className="h-full w-full object-cover" />
+              </div>
+              <button
+                type="button"
+                onClick={() => set('storytellingImageUrl', null)}
+                className="border border-[var(--erreur)]/50 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.1em] text-[var(--erreur)] transition-colors hover:bg-[var(--erreur)] hover:text-white"
+              >
+                Supprimer l'image
+              </button>
+            </div>
+          ) : (
+            <p className="mb-4 text-sm text-[var(--texte-doux)]">Aucune image définie (bloc vert par défaut).</p>
+          )}
+
+          <ImageUploader
+            images={[]}
+            maxImages={1}
+            onChange={(imgs) => {
+              const url = imgs[imgs.length - 1]
+              if (url) set('storytellingImageUrl', url)
+            }}
+          />
+        </div>
       </section>
 
       {/* Produits mis en avant */}

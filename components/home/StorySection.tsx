@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Reveal } from '@/components/ui/Reveal'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +17,7 @@ export interface StoryContent {
   stat2Label?: string
   stat3Value?: string
   stat3Label?: string
+  imageUrl?: string
 }
 
 export function StorySection({ content }: { content?: StoryContent } = {}) {
@@ -27,6 +29,7 @@ export function StorySection({ content }: { content?: StoryContent } = {}) {
   const title = c.title?.trim() || t('title')
   const body = c.body?.trim() || t('body')
   const cta = c.cta?.trim() || t('cta')
+  const imageUrl = c.imageUrl?.trim() || ''
   const stats = [
     { value: c.stat1Value?.trim() || t('stat1'), label: c.stat1Label?.trim() || t('stat1Label') },
     { value: c.stat2Value?.trim() || t('stat2'), label: c.stat2Label?.trim() || t('stat2Label') },
@@ -70,13 +73,27 @@ export function StorySection({ content }: { content?: StoryContent } = {}) {
         </Reveal>
 
         <Reveal direction="left">
-          <div className="relative aspect-[4/5] w-full overflow-hidden">
-            <div className="h-full w-full bg-gradient-to-br from-[var(--vert-fonce)] via-[var(--vert-moyen)] to-[var(--vert-fonce)]" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-titre text-7xl text-[var(--or-clair)]/30">
-                Dar Dmana
-              </span>
-            </div>
+          <div className="relative aspect-[4/5] w-full">
+            {imageUrl ? (
+              <div className="relative h-full w-full overflow-hidden rounded-xl shadow-[0_20px_50px_-20px_rgba(20,19,15,0.45)]">
+                <Image
+                  src={imageUrl}
+                  alt={title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="relative h-full w-full overflow-hidden">
+                <div className="h-full w-full bg-gradient-to-br from-[var(--vert-fonce)] via-[var(--vert-moyen)] to-[var(--vert-fonce)]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="font-titre text-7xl text-[var(--or-clair)]/30">
+                    Dar Dmana
+                  </span>
+                </div>
+              </div>
+            )}
             <div className="absolute -bottom-6 -start-6 hidden h-32 w-32 border border-[var(--or-royal)] sm:block" />
           </div>
         </Reveal>

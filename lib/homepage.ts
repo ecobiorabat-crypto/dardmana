@@ -42,6 +42,7 @@ export interface HomepageSettingsData {
   storytellingButtonTextFr: string | null
   storytellingButtonTextAr: string | null
   storytellingButtonTextEn: string | null
+  storytellingImageUrl: string | null
 }
 
 const STORYTELLING_KEYS = [
@@ -93,6 +94,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
   storytellingButtonTextFr: null,
   storytellingButtonTextAr: null,
   storytellingButtonTextEn: null,
+  storytellingImageUrl: null,
 }
 
 /**
@@ -121,6 +123,7 @@ export async function getHomepageSettings(): Promise<HomepageSettingsData> {
       newsletterTitleFr: row.newsletterTitleFr,
       newsletterTitleAr: row.newsletterTitleAr,
       newsletterTitleEn: row.newsletterTitleEn,
+      storytellingImageUrl: row.storytellingImageUrl,
       ...storytelling,
     }
   } catch {

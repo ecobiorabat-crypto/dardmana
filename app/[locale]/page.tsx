@@ -48,6 +48,7 @@ export default async function HomePage({
     stat2Label: pickLocale(homepage, 'stat2Label', locale),
     stat3Value: homepage.stat3Value ?? '',
     stat3Label: pickLocale(homepage, 'stat3Label', locale),
+    imageUrl: homepage.storytellingImageUrl ?? '',
   }
 
   // sameAs des données structurées : réseaux sociaux configurés en admin.
