@@ -1,4 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
+import {
+  EMPTY_CATEGORY_GRID,
+  type CategoryGridImages,
+  type HeroSlide,
+} from '@/lib/homepage-types'
+
+// Ré-exports pour conserver les imports existants `from '@/lib/homepage'`.
+export { EMPTY_HERO_SLIDE, EMPTY_CATEGORY_GRID } from '@/lib/homepage-types'
+export type { HeroSlide, CategoryGridImages } from '@/lib/homepage-types'
 
 const SINGLETON_ID = 'singleton'
 
@@ -43,6 +53,9 @@ export interface HomepageSettingsData {
   storytellingButtonTextAr: string | null
   storytellingButtonTextEn: string | null
   storytellingImageUrl: string | null
+  heroSlides: HeroSlide[]
+  categoryGridImages: CategoryGridImages
+  featuredSliderEnabled: boolean
 }
 
 const STORYTELLING_KEYS = [
@@ -95,6 +108,33 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
   storytellingButtonTextAr: null,
   storytellingButtonTextEn: null,
   storytellingImageUrl: null,
+  heroSlides: [],
+  categoryGridImages: EMPTY_CATEGORY_GRID,
+  featuredSliderEnabled: false,
+}
+
+/** Normalise une valeur JSON brute en tableau de HeroSlide. */
+function parseHeroSlides(raw: Prisma.JsonValue | null | undefined): HeroSlide[] {
+  if (!Array.isArray(raw)) return []
+  return raw.slice(0, 3).map((s) => {
+    const o = (s && typeof s === 'object' ? s : {}) as Record<string, unknown>
+    const str = (k: string) => (typeof o[k] === 'string' ? (o[k] as string) : '')
+    return {
+      imageFr: str('imageFr'), imageAr: str('imageAr'),
+      titleFr: str('titleFr'), titleAr: str('titleAr'),
+      subtitleFr: str('subtitleFr'), subtitleAr: str('subtitleAr'),
+      buttonTextFr: str('buttonTextFr'), buttonTextAr: str('buttonTextAr'),
+      buttonLink: str('buttonLink'),
+    }
+  })
+}
+
+/** Normalise une valeur JSON brute en CategoryGridImages. */
+function parseCategoryGrid(raw: Prisma.JsonValue | null | undefined): CategoryGridImages {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ...EMPTY_CATEGORY_GRID }
+  const o = raw as Record<string, unknown>
+  const str = (k: string) => (typeof o[k] === 'string' ? (o[k] as string) : '')
+  return { sabhah: str('sabhah'), bracelets: str('bracelets'), huiles: str('huiles'), pierres: str('pierres') }
 }
 
 /**
@@ -124,6 +164,9 @@ export async function getHomepageSettings(): Promise<HomepageSettingsData> {
       newsletterTitleAr: row.newsletterTitleAr,
       newsletterTitleEn: row.newsletterTitleEn,
       storytellingImageUrl: row.storytellingImageUrl,
+      heroSlides: parseHeroSlides(row.heroSlides),
+      categoryGridImages: parseCategoryGrid(row.categoryGridImages),
+      featuredSliderEnabled: row.featuredSliderEnabled,
       ...storytelling,
     }
   } catch {
@@ -133,9 +176,9 @@ export async function getHomepageSettings(): Promise<HomepageSettingsData> {
 
 /** Crée ou met à jour le singleton de la page d'accueil. */
 export async function upsertHomepageSettings(data: Partial<HomepageSettingsData>) {
-  return prisma.homepageSettings.upsert({
-    where: { id: SINGLETON_ID },
-    create: { id: SINGLETON_ID, ...HOMEPAGE_DEFAULTS, ...data },
-    update: data,
-  })
+  // Les champs JSON (heroSlides, categoryGridImages) sont sûrs (chaînes pures),
+  // mais leurs types applicatifs ne correspondent pas à InputJsonValue → cast.
+  const create = { id: SINGLETON_ID, ...HOMEPAGE_DEFAULTS, ...data } as unknown as Prisma.HomepageSettingsUncheckedCreateInput
+  const update = data as unknown as Prisma.HomepageSettingsUncheckedUpdateInput
+  return prisma.homepageSettings.upsert({ where: { id: SINGLETON_ID }, create, update })
 }

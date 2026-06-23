@@ -5,7 +5,57 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ImageUploader } from '@/components/admin/produits/ImageUploader'
 import { updateHomepageAction } from '@/app/admin/(panel)/cms/actions'
+import { EMPTY_HERO_SLIDE, type CategoryGridImages, type HeroSlide } from '@/lib/homepage-types'
 import type { HomepageSettingsData } from '@/lib/homepage'
+
+/** Garantit exactement 3 slides éditables (les vides sont filtrés à la sauvegarde). */
+function padSlides(slides: HeroSlide[]): HeroSlide[] {
+  return [0, 1, 2].map((i) => slides[i] ?? { ...EMPTY_HERO_SLIDE })
+}
+
+function slideIsEmpty(s: HeroSlide): boolean {
+  return !s.imageFr && !s.imageAr && !s.titleFr && !s.titleAr && !s.subtitleFr && !s.subtitleAr
+}
+
+const CATEGORY_TILES: { key: keyof CategoryGridImages; label: string }[] = [
+  { key: 'sabhah', label: 'Sabhah' },
+  { key: 'bracelets', label: 'Bracelets' },
+  { key: 'huiles', label: 'Huiles parfumées' },
+  { key: 'pierres', label: 'Pierres naturelles' },
+]
+
+/** Contrôle compact : aperçu + suppression si une image existe, sinon uploader. */
+function SlideImage({ label, url, onChange }: { label: string; url: string; onChange: (u: string) => void }) {
+  return (
+    <div>
+      <label className={labelCls}>{label}</label>
+      {url ? (
+        <div className="flex items-start gap-3">
+          <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded border border-[var(--bordure)] bg-[var(--gris-perle)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt="" className="h-full w-full object-cover" />
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="text-xs text-[var(--erreur)] underline-offset-2 hover:underline"
+          >
+            Supprimer
+          </button>
+        </div>
+      ) : (
+        <ImageUploader
+          images={[]}
+          maxImages={1}
+          onChange={(imgs) => {
+            const u = imgs[imgs.length - 1]
+            if (u) onChange(u)
+          }}
+        />
+      )}
+    </div>
+  )
+}
 
 const LANGS = ['fr', 'ar', 'en'] as const
 type Lang = (typeof LANGS)[number]
@@ -24,13 +74,27 @@ export function HomepageForm({
   products: { id: string; nameFr: string }[]
 }) {
   const router = useRouter()
-  const [form, setForm] = useState<HomepageSettingsData>(initial)
+  const [form, setForm] = useState<HomepageSettingsData>(() => ({
+    ...initial,
+    heroSlides: padSlides(initial.heroSlides),
+  }))
   const [lang, setLang] = useState<Lang>('fr')
   const [pending, startTransition] = useTransition()
   const [note, setNote] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   function set<K extends keyof HomepageSettingsData>(key: K, value: HomepageSettingsData[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  function setSlide(i: number, patch: Partial<HeroSlide>) {
+    setForm((f) => ({
+      ...f,
+      heroSlides: f.heroSlides.map((s, idx) => (idx === i ? { ...s, ...patch } : s)),
+    }))
+  }
+
+  function setCategoryImg(key: keyof CategoryGridImages, url: string) {
+    setForm((f) => ({ ...f, categoryGridImages: { ...f.categoryGridImages, [key]: url } }))
   }
 
   function toggleFeatured(id: string) {
@@ -47,8 +111,10 @@ export function HomepageForm({
 
   function handleSave() {
     setNote(null)
+    // Filtre les slides vides : si tous le sont, heroSlides = [] → repli sur l'ancien Hero.
+    const cleanedSlides = form.heroSlides.filter((s) => !slideIsEmpty(s))
     startTransition(async () => {
-      const res = await updateHomepageAction(form)
+      const res = await updateHomepageAction({ ...form, heroSlides: cleanedSlides })
       if (res.ok) {
         setNote({ type: 'ok', text: res.message ?? 'Enregistré' })
         router.refresh()
@@ -298,6 +364,88 @@ export function HomepageForm({
         </div>
       </section>
 
+      {/* Slides Hero (slider cinématique) */}
+      <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Slides Hero</h3>
+        <p className="mb-4 text-xs text-[var(--texte-doux)]">
+          Jusqu’à 3 slides. Dès qu’un slide a une image ou un titre, le slider cinématique
+          remplace l’ancien Hero. Laissez les 3 vides pour conserver l’ancien Hero.
+        </p>
+
+        <div className="space-y-5">
+          {form.heroSlides.map((slide, i) => (
+            <div key={i} className="border border-[var(--bordure)] p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vert-fonce)]">
+                Slide {i + 1}
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <SlideImage
+                  label="Image de fond (FR)"
+                  url={slide.imageFr}
+                  onChange={(u) => setSlide(i, { imageFr: u })}
+                />
+                <SlideImage
+                  label="Image de fond (AR) — optionnel"
+                  url={slide.imageAr}
+                  onChange={(u) => setSlide(i, { imageAr: u })}
+                />
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className={labelCls}>Titre arabe (grand)</label>
+                  <input dir="rtl" className={inputCls} value={slide.titleAr} onChange={(e) => setSlide(i, { titleAr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Titre français</label>
+                  <input className={inputCls} value={slide.titleFr} onChange={(e) => setSlide(i, { titleFr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Sous-titre arabe</label>
+                  <input dir="rtl" className={inputCls} value={slide.subtitleAr} onChange={(e) => setSlide(i, { subtitleAr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Sous-titre français</label>
+                  <input className={inputCls} value={slide.subtitleFr} onChange={(e) => setSlide(i, { subtitleFr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Texte bouton arabe</label>
+                  <input dir="rtl" className={inputCls} value={slide.buttonTextAr} onChange={(e) => setSlide(i, { buttonTextAr: e.target.value })} placeholder="اكتشفوا" />
+                </div>
+                <div>
+                  <label className={labelCls}>Texte bouton français</label>
+                  <input className={inputCls} value={slide.buttonTextFr} onChange={(e) => setSlide(i, { buttonTextFr: e.target.value })} placeholder="Découvrir" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Lien du bouton</label>
+                  <input className={inputCls} value={slide.buttonLink} onChange={(e) => setSlide(i, { buttonLink: e.target.value })} placeholder="/catalogue" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Images catégories */}
+      <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Images catégories</h3>
+        <p className="mb-4 text-xs text-[var(--texte-doux)]">
+          Grille de 4 tuiles sous le slider. Dès qu’une image est définie, la grille luxe
+          remplace la grille catégories classique.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {CATEGORY_TILES.map((tile) => (
+            <SlideImage
+              key={tile.key}
+              label={tile.label}
+              url={form.categoryGridImages[tile.key]}
+              onChange={(u) => setCategoryImg(tile.key, u)}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* Produits mis en avant */}
       <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
         <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Produits mis en avant</h3>
@@ -305,6 +453,19 @@ export function HomepageForm({
           Sélection affichée dans la section « Best-sellers ». Si vide, les produits marqués
           « En vedette » sont utilisés.
         </p>
+
+        <label className="mb-4 flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={form.featuredSliderEnabled}
+            onChange={(e) => set('featuredSliderEnabled', e.target.checked)}
+            className="h-4 w-4 accent-[var(--vert-fonce)]"
+          />
+          <span className="text-sm text-[var(--texte)]">
+            Activer le slider produits vedettes{' '}
+            <span className="text-[var(--texte-doux)]">(carrousel horizontal au lieu de la grille best-sellers)</span>
+          </span>
+        </label>
         {products.length === 0 ? (
           <p className="text-sm text-[var(--texte-doux)]">Aucun produit actif.</p>
         ) : (

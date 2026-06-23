@@ -553,6 +553,14 @@ model HomepageSettings {
   // Image de la section savoir-faire (colonne droite) — gérée via l'admin.
   storytellingImageUrl String?
 
+  // Slider Hero cinématique : tableau (max 3) de slides { images, titres,
+  // sous-titres, bouton } stocké en JSON. Si vide → repli sur le Hero actuel.
+  heroSlides Json?
+  // Images des 4 tuiles catégories { sabhah, bracelets, huiles, pierres }.
+  categoryGridImages Json?
+  // Slider produits vedettes (sinon section best-sellers classique).
+  featuredSliderEnabled Boolean @default(false)
+
   updatedAt DateTime @updatedAt @default(now())
 }
 

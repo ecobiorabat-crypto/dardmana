@@ -14,6 +14,11 @@
   --creme: #faf6ef;
   --gris-perle: #f0ece4;
 
+  /* Tons sable / laiton — ambiance marocaine de luxe (slider Hero) */
+  --sable: #f5ede0;
+  --sable-fonce: #e8d5b7;
+  --laiton: #c4952a;
+
   /* Neutres dérivés */
   --noir: #14130f;
   --blanc: #ffffff;
@@ -50,6 +55,9 @@
   --color-or-clair: var(--or-clair);
   --color-creme: var(--creme);
   --color-gris-perle: var(--gris-perle);
+  --color-sable: var(--sable);
+  --color-sable-fonce: var(--sable-fonce);
+  --color-laiton: var(--laiton);
   --color-noir: var(--noir);
   --color-blanc: var(--blanc);
   --color-texte: var(--texte);

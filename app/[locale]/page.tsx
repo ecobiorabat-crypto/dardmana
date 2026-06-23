@@ -1,8 +1,11 @@
 import { setRequestLocale } from 'next-intl/server'
 import { HeroSection } from '@/components/home/HeroSection'
+import { HeroSlider } from '@/components/home/HeroSlider'
 import { TrustStrip } from '@/components/home/TrustStrip'
 import { CategoriesGrid } from '@/components/home/CategoriesGrid'
+import { LuxuryCategoryGrid } from '@/components/home/LuxuryCategoryGrid'
 import { BestSellers } from '@/components/home/BestSellers'
+import { FeaturedSlider } from '@/components/home/FeaturedSlider'
 import { StorySection } from '@/components/home/StorySection'
 import { Testimonials, type FeaturedTestimonial } from '@/components/home/Testimonials'
 import { prisma } from '@/lib/prisma'
@@ -34,6 +37,10 @@ export default async function HomePage({
   const heroTitle = pickLocale(homepage, 'heroTitle', locale)
   const heroSubtitle = pickLocale(homepage, 'heroSubtitle', locale)
   const newsletterTitle = pickLocale(homepage, 'newsletterTitle', locale)
+
+  // Bascules du nouveau design (repli intégral sur l'ancien si non configuré).
+  const useHeroSlider = homepage.heroSlides.length > 0
+  const useCategoryGrid = Object.values(homepage.categoryGridImages).some((u) => Boolean(u))
 
   // Section « Notre savoir-faire » — overrides CMS (repli sur les traductions
   // géré dans le composant si une valeur est vide).
@@ -184,14 +191,26 @@ export default async function HomePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
       />
-      <HeroSection
-        titleOverride={heroTitle}
-        subtitleOverride={heroSubtitle}
-        featuredIds={homepage.featuredProductIds}
-      />
+      {useHeroSlider ? (
+        <HeroSlider slides={homepage.heroSlides} />
+      ) : (
+        <HeroSection
+          titleOverride={heroTitle}
+          subtitleOverride={heroSubtitle}
+          featuredIds={homepage.featuredProductIds}
+        />
+      )}
       <TrustStrip />
-      <CategoriesGrid />
-      <BestSellers featuredIds={homepage.featuredProductIds} />
+      {useCategoryGrid ? (
+        <LuxuryCategoryGrid images={homepage.categoryGridImages} />
+      ) : (
+        <CategoriesGrid />
+      )}
+      {homepage.featuredSliderEnabled ? (
+        <FeaturedSlider featuredIds={homepage.featuredProductIds} />
+      ) : (
+        <BestSellers featuredIds={homepage.featuredProductIds} />
+      )}
       <StorySection content={storyContent} />
       <Testimonials featured={featured} />
       <Newsletter titleOverride={newsletterTitle} />
