@@ -39,6 +39,10 @@ const PAYMENT_LABEL_KEYS: Record<string, string> = {
   STRIPE: 'Checkout.stripeInternational',
 }
 
+// Passerelles pas encore branchées : affichées mais non sélectionnables
+// (évite de créer des commandes non payées). À retirer dès l'intégration.
+const COMING_SOON = new Set(['CMI', 'PAYPAL'])
+
 const STEP_KEYS = [
   'Checkout.stepAddress',
   'Checkout.stepShipping',
@@ -225,6 +229,11 @@ export function CheckoutWizard() {
 
   async function handleConfirm() {
     setError(null)
+    // Garde-fou : une passerelle « bientôt disponible » ne doit jamais aboutir.
+    if (COMING_SOON.has(payment)) {
+      setError(t('Checkout.comingSoon'))
+      return
+    }
     setSubmitting(true)
     try {
       if (payment === 'COD') {
@@ -324,7 +333,8 @@ export function CheckoutWizard() {
                         set('country', e.target.value)
                         setShippingId('')
                         const methods = getPaymentMethods(e.target.value)
-                        setPayment(methods[0])
+                        // Sélectionne la 1re méthode réellement disponible.
+                        setPayment(methods.find((m) => !COMING_SOON.has(m)) ?? methods[0])
                       }}
                       className="h-12 w-full border border-[var(--bordure)] bg-transparent px-3 text-sm outline-none focus:border-[var(--or-royal)]"
                     >
@@ -390,23 +400,34 @@ export function CheckoutWizard() {
                 <h2 className="font-titre text-2xl text-[var(--vert-fonce)]">{t('Checkout.stepPayment')}</h2>
                 <div className="space-y-3">
                   {paymentMethods.map((m) => {
-                    const active = payment === m
+                    const comingSoon = COMING_SOON.has(m)
+                    const active = payment === m && !comingSoon
                     return (
                       <label
                         key={m}
                         className={cn(
-                          'flex cursor-pointer items-center gap-3 border p-4 transition-colors',
-                          active ? 'border-[var(--vert-fonce)] bg-[var(--creme)]' : 'border-[var(--bordure)]',
+                          'flex items-center gap-3 border p-4 transition-colors',
+                          comingSoon
+                            ? 'cursor-not-allowed border-[var(--bordure)] opacity-60'
+                            : active
+                              ? 'cursor-pointer border-[var(--vert-fonce)] bg-[var(--creme)]'
+                              : 'cursor-pointer border-[var(--bordure)]',
                         )}
                       >
                         <input
                           type="radio"
                           name="payment"
                           checked={active}
-                          onChange={() => setPayment(m)}
+                          disabled={comingSoon}
+                          onChange={() => !comingSoon && setPayment(m)}
                           className="h-4 w-4 accent-[var(--vert-fonce)]"
                         />
-                        <span className="text-sm font-medium text-[var(--texte)]">{paymentLabel(m)}</span>
+                        <span className="flex-1 text-sm font-medium text-[var(--texte)]">{paymentLabel(m)}</span>
+                        {comingSoon && (
+                          <span className="rounded-full bg-[var(--gris-perle)] px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-[0.08em] text-[var(--texte-doux)]">
+                            {t('Checkout.comingSoon')}
+                          </span>
+                        )}
                       </label>
                     )
                   })}

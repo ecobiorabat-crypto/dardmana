@@ -256,7 +256,8 @@
     "fullName": "Full name",
     "paymentFailed": "Payment failed.",
     "yourOrder": "Your order",
-    "heading": "Complete your order"
+    "heading": "Complete your order",
+    "comingSoon": "Coming soon"
   },
   "Confirmation": {
     "title": "Order confirmed",

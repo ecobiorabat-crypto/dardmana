@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifyAdminSession } from '@/lib/auth/admin'
 import { hasPermission } from '@/lib/auth/permissions'
 import { normalizePhone } from '@/lib/utils/phone'
+import { notifyAdminWhatsApp } from '@/lib/notify-whatsapp'
 import type { Prisma, OrderStatus, PaymentMethod, PaymentStatus, OrderSource } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest) {
     const orderDate = data.orderDate ? new Date(data.orderDate) : new Date()
     const paymentStatus: PaymentStatus = data.orderStatus === 'DELIVERED' ? 'PAID' : 'PENDING'
 
-    const orderId = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Client : lié par téléphone, sinon créé.
       const existing = await tx.customer.findUnique({ where: { phone }, select: { id: true } })
       let customerId: string
@@ -222,9 +223,10 @@ export async function POST(request: NextRequest) {
       }
 
       // 2. Création de la commande.
+      const orderNumber = generateOrderNumber()
       const order = await tx.order.create({
         data: {
-          orderNumber: generateOrderNumber(),
+          orderNumber,
           customerId,
           customerName: data.customer.name,
           customerEmail: email ?? `admin-${Date.now()}@dardmana.internal`,
@@ -267,10 +269,21 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      return order.id
+      return { id: order.id, orderNumber }
     })
 
-    return NextResponse.json({ success: true, orderId }, { status: 201 })
+    // Notification WhatsApp admin (CallMeBot) — non bloquant.
+    await notifyAdminWhatsApp({
+      orderNumber: result.orderNumber,
+      customerName: data.customer.name,
+      customerPhone: phone,
+      totalMad,
+      paymentMethod: data.paymentMethod,
+      source: data.source,
+      orderItems: itemsSnapshot.map((i) => ({ productName: i.name, quantity: i.quantity })),
+    }).catch((err) => console.error('[POST /api/admin/orders] Notif WhatsApp échouée (non bloquant):', err))
+
+    return NextResponse.json({ success: true, orderId: result.id }, { status: 201 })
   } catch (error) {
     console.error('[POST /api/admin/orders]', error)
     return NextResponse.json({ error: 'Erreur serveur lors de la création' }, { status: 500 })

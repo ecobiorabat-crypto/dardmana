@@ -256,7 +256,8 @@
     "fullName": "Nom complet",
     "paymentFailed": "Le paiement a échoué.",
     "yourOrder": "Votre commande",
-    "heading": "Finaliser ma commande"
+    "heading": "Finaliser ma commande",
+    "comingSoon": "Bientôt disponible"
   },
   "Confirmation": {
     "title": "Commande confirmée",

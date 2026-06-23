@@ -6,5 +6,11 @@
       "source": "/api/webhooks/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/abandoned-cart-reminders",
+      "schedule": "0 */2 * * *"
+    }
   ]
 }

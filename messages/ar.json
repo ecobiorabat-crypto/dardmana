@@ -256,7 +256,8 @@
     "fullName": "الاسم الكامل",
     "paymentFailed": "فشلت عملية الدفع.",
     "yourOrder": "طلبك",
-    "heading": "إتمام الطلب"
+    "heading": "إتمام الطلب",
+    "comingSoon": "قريباً"
   },
   "Confirmation": {
     "title": "تم تأكيد الطلب",
