@@ -37,7 +37,7 @@ export function ProductsMegaMenu({ label, href }: { label: string; href: string 
   return (
     <li
       ref={ref}
-      className="relative"
+      className="relative z-50"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -73,7 +73,7 @@ export function ProductsMegaMenu({ label, href }: { label: string; href: string 
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             // pt-3 crée l'espace visuel SANS zone morte (le survol reste continu).
-            className="absolute start-1/2 top-full z-50 -translate-x-1/2 pt-3"
+            className="absolute start-1/2 top-full z-[60] -translate-x-1/2 pt-3"
           >
             <div className="w-[clamp(420px,42vw,560px)] rounded-[12px] bg-[var(--blanc)] p-4 text-[var(--texte)] shadow-[0_20px_50px_-15px_rgba(20,19,15,0.28)] ring-1 ring-[var(--bordure)]">
               {categories.length === 0 ? (

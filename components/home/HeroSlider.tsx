@@ -66,14 +66,20 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--sable)] via-[var(--sable-fonce)] to-[var(--sable)]" />
           )}
-          {/* Overlay : sombre en bas (lisibilité du texte) → transparent en haut
-              (le centre/haut de l'image reste visible à 100%). */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--noir)]/80 via-[var(--noir)]/30 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      {/* Contenu : ancré EN BAS de l'image (ne cache pas le centre). */}
-      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-end px-4 pb-24 pt-28 text-center sm:px-6">
+      {/* Overlay dégradé stable EN BAS (lisibilité titre + bouton sur toute image,
+          le haut/centre de l'image reste visible à 100%). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 40%)' }}
+      />
+
+      {/* Contenu : titre AR + FR + sous-titre, ancrés en bas (le bouton est
+          désormais positionné séparément tout en bas, voir plus loin). */}
+      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-end px-4 pb-36 pt-28 text-center sm:px-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`txt-${index}`}
@@ -101,14 +107,6 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                 {subtitle}
               </p>
             )}
-            <div className="mt-9">
-              <Link
-                href={localizedHref(locale, buttonLink)}
-                className="inline-flex items-center justify-center rounded-full bg-[var(--vert-fonce)] px-9 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[var(--creme)] shadow-[0_10px_30px_-12px_rgba(20,19,15,0.6)] transition-colors hover:bg-[var(--vert-moyen)]"
-              >
-                {buttonText}
-              </Link>
-            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -139,9 +137,9 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         </>
       )}
 
-      {/* Points */}
+      {/* Points (au-dessus du bouton) */}
       {count > 1 && (
-        <div className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5">
+        <div className="absolute bottom-24 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5">
           {slides.map((_, i) => (
             <button
               key={i}
@@ -156,6 +154,16 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ))}
         </div>
       )}
+
+      {/* Bouton « Découvrir » — épinglé tout en bas du slider (ne cache pas l'image). */}
+      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
+        <Link
+          href={localizedHref(locale, buttonLink)}
+          className="inline-flex items-center justify-center rounded-full bg-[var(--vert-fonce)] px-9 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[var(--creme)] shadow-[0_10px_30px_-12px_rgba(20,19,15,0.6)] transition-colors hover:bg-[var(--vert-moyen)]"
+        >
+          {buttonText}
+        </Link>
+      </div>
     </section>
   )
 }

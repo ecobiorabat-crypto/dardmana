@@ -104,8 +104,9 @@ export function Navbar({ siteName }: NavbarProps = {}) {
           solid
             ? 'bg-[var(--vert-fonce)] shadow-[0_10px_30px_-18px_rgba(20,19,15,0.6)]'
             : // En haut du Hero : dégradé sombre haut → transparent (style luxe,
-              // navbar lisible sur image claire) + ombre portée sur le texte/icônes.
-              'bg-gradient-to-b from-black/45 via-black/15 to-transparent [filter:drop-shadow(0_1px_6px_rgba(0,0,0,0.55))]',
+              // navbar lisible sur image claire). text-shadow (PAS filter, qui
+              // créerait un stacking-context bloquant le mega-menu déroulant).
+              'bg-gradient-to-b from-black/55 via-black/20 to-transparent [text-shadow:0_1px_10px_rgba(0,0,0,0.55)]',
         )}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8">
