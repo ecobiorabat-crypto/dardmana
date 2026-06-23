@@ -200,12 +200,13 @@ export default async function HomePage({
           featuredIds={homepage.featuredProductIds}
         />
       )}
-      <TrustStrip />
       {useCategoryGrid ? (
         <LuxuryCategoryGrid images={homepage.categoryGridImages} />
       ) : (
         <CategoriesGrid />
       )}
+      {/* Bande de réassurance, juste sous les tuiles catégories */}
+      <TrustStrip />
       {homepage.featuredSliderEnabled ? (
         <FeaturedSlider featuredIds={homepage.featuredProductIds} />
       ) : (

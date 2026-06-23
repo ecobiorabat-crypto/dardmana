@@ -39,11 +39,13 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const buttonLink = slide.buttonLink?.trim() || '/catalogue'
 
   return (
-    <section
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      className="relative min-h-[88vh] overflow-hidden bg-[var(--sable)]"
-    >
+    <section className="bg-[var(--sable)]">
+      {/* ─── Slider (images, titres, navigation) ─── */}
+      <div
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        className="relative min-h-[88vh] overflow-hidden"
+      >
       {/* Fond (fondu doux) */}
       <AnimatePresence mode="popLayout">
         <motion.div
@@ -79,7 +81,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
       {/* Contenu : titre AR + FR + sous-titre, ancrés en bas (le bouton est
           désormais positionné séparément tout en bas, voir plus loin). */}
-      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-end px-4 pb-36 pt-28 text-center sm:px-6">
+      <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-5xl flex-col items-center justify-end px-4 pb-24 pt-28 text-center sm:px-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`txt-${index}`}
@@ -137,9 +139,9 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         </>
       )}
 
-      {/* Points (au-dessus du bouton) */}
+      {/* Points */}
       {count > 1 && (
-        <div className="absolute bottom-24 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5">
+        <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5">
           {slides.map((_, i) => (
             <button
               key={i}
@@ -154,12 +156,14 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ))}
         </div>
       )}
+      </div>
 
-      {/* Bouton « Découvrir » — épinglé tout en bas du slider (ne cache pas l'image). */}
-      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
+      {/* ─── Bouton « Découvrir » — APRÈS le slider, centré sur fond crème
+          (plus aucun chevauchement avec l'image). ─── */}
+      <div className="flex justify-center bg-[var(--sable)] py-6">
         <Link
           href={localizedHref(locale, buttonLink)}
-          className="inline-flex items-center justify-center rounded-full bg-[var(--vert-fonce)] px-9 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[var(--creme)] shadow-[0_10px_30px_-12px_rgba(20,19,15,0.6)] transition-colors hover:bg-[var(--vert-moyen)]"
+          className="inline-flex items-center justify-center rounded-full bg-[var(--vert-fonce)] px-10 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[var(--creme)] shadow-[0_10px_30px_-14px_rgba(20,19,15,0.6)] transition-colors hover:bg-[var(--vert-moyen)]"
         >
           {buttonText}
         </Link>
