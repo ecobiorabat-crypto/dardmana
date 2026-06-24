@@ -17,7 +17,7 @@ const COLUMNS: FooterColumn[] = [
     links: [
       { labelKey: 'newArrivals', href: '/nouveautes' },
       { labelKey: 'bestSellers', href: '/best-sellers' },
-      { labelKey: 'limitedEditions', href: '/collections/editions-limitees' },
+      { labelKey: 'limitedEditions', href: '/editions-limitees' },
       { labelKey: 'allCollections', href: '/collections' },
     ],
   },

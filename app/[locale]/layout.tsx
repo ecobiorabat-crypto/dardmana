@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
+import { prisma } from '@/lib/prisma'
 import { getSiteSettings } from '@/lib/settings'
 import { getHomepageSettings } from '@/lib/homepage'
 import { pickLocale } from '@/lib/cms'
@@ -96,18 +97,29 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale)
   const messages = await getMessages()
-  const [settings, homepage] = await Promise.all([getSiteSettings(), getHomepageSettings()])
+  const t = await getTranslations()
+  const [settings, homepage, limitedCount] = await Promise.all([
+    getSiteSettings(),
+    getHomepageSettings(),
+    prisma.product.count({ where: { status: 'ACTIVE', tags: { has: 'limited' } } }).catch(() => 0),
+  ])
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
-  // Bandeau d'annonce piloté par l'admin (texte localisé + activation).
+  // Bandeau : message auto « éditions limitées » prioritaire si elles existent,
+  // sinon l'annonce admin (si activée).
   const announcement = pickLocale(homepage, 'announcementText', locale)
+  const limitedMsg = limitedCount > 0 ? t('Announcement.limitedEditions', { count: limitedCount }) : null
+  const showAnnouncement = Boolean(limitedMsg) || homepage.announcementActive
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div lang={locale} dir={dir} className="flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-[100]">
-          {homepage.announcementActive && (
-            <AnnouncementBar message={announcement || undefined} />
+          {showAnnouncement && (
+            <AnnouncementBar
+              message={limitedMsg ?? announcement ?? undefined}
+              cookieKey={limitedMsg ? `dd-limited-${limitedCount}` : 'dd-announcement'}
+            />
           )}
           <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
         </div>

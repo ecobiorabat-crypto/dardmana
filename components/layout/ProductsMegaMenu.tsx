@@ -138,13 +138,20 @@ export function ProductsMegaMenu({ label, href }: { label: string; href: string 
                 </div>
               )}
 
-              <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--bordure)] pt-3">
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-[var(--bordure)] pt-3">
                 <Link
                   href={localizedHref(locale, '/best-sellers')}
                   onClick={closeNow}
                   className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--or-royal)] transition-colors hover:text-[var(--vert-fonce)]"
                 >
                   ⭐ {t('BestSellers.metaTitle')}
+                </Link>
+                <Link
+                  href={localizedHref(locale, '/editions-limitees')}
+                  onClick={closeNow}
+                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--erreur)] transition-colors hover:text-[var(--vert-fonce)]"
+                >
+                  🔥 {t('LimitedEditions.metaTitle')}
                 </Link>
                 <Link
                   href={localizedHref(locale, '/catalogue')}

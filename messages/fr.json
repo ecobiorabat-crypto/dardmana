@@ -145,7 +145,8 @@
     "selectRating": "Sélectionner une note",
     "ratingValue": "Note : {value}",
     "starCount": "{count} étoiles",
-    "soldOut": "Épuisé"
+    "soldOut": "Épuisé",
+    "limitedStock": "Plus que {count} pièce{count, plural, one {} other {s}}"
   },
   "Catalogue": {
     "title": "Le Catalogue",
@@ -398,7 +399,8 @@
   },
   "Announcement": {
     "freeShipping": "Livraison offerte dès 800 MAD d'achat",
-    "message": "Livraison express 24-48h partout au Maroc"
+    "message": "Livraison express 24-48h partout au Maroc",
+    "limitedEditions": "🔥 {count} édition{count, plural, one {} other {s}} limitée{count, plural, one {} other {s}} disponible{count, plural, one {} other {s}}"
   },
   "Search": {
     "placeholder": "Rechercher un produit, une collection…",
@@ -756,5 +758,115 @@
     "all": "Toutes",
     "empty": "Aucun produit pour le moment.",
     "browse": "Voir le catalogue"
+  },
+  "Faq": {
+    "metaTitle": "FAQ — Questions fréquentes",
+    "metaDescription": "Réponses aux questions fréquentes sur les commandes, le paiement, la livraison, les produits et les retours Dar Dmana.",
+    "title": "Foire aux questions",
+    "subtitle": "Trouvez rapidement une réponse à vos questions.",
+    "searchPlaceholder": "Rechercher une question…",
+    "noResults": "Aucune question ne correspond à votre recherche.",
+    "categories": [
+      {
+        "name": "Commandes",
+        "items": [
+          {
+            "q": "Comment passer une commande ?",
+            "a": "Ajoutez vos articles au panier puis suivez les étapes du paiement. Vous recevrez une confirmation par email."
+          },
+          {
+            "q": "Puis-je modifier ma commande après confirmation ?",
+            "a": "Contactez-nous au plus vite par WhatsApp ou email : tant que la commande n’est pas expédiée, nous pouvons la modifier."
+          },
+          {
+            "q": "Comment annuler ma commande ?",
+            "a": "Écrivez-nous à contact@dardmana.ma avec votre numéro de commande. L’annulation est possible avant l’expédition."
+          },
+          {
+            "q": "Comment suivre ma commande ?",
+            "a": "Utilisez la page Suivi de commande avec votre numéro de commande et votre téléphone."
+          }
+        ]
+      },
+      {
+        "name": "Paiement",
+        "items": [
+          {
+            "q": "Quels modes de paiement acceptez-vous ?",
+            "a": "Paiement à la livraison (COD), carte bancaire (CMI) et paiement international sécurisé."
+          },
+          {
+            "q": "Le paiement en ligne est-il sécurisé ?",
+            "a": "Oui, toutes les transactions sont cryptées et traitées via des prestataires certifiés."
+          },
+          {
+            "q": "Puis-je payer à la livraison ?",
+            "a": "Oui, le paiement à la livraison est disponible partout au Maroc."
+          }
+        ]
+      },
+      {
+        "name": "Livraison",
+        "items": [
+          {
+            "q": "Quels sont les délais de livraison ?",
+            "a": "Maroc : 24-48h. Europe : 7-10 jours. International : 10-20 jours."
+          },
+          {
+            "q": "Livrez-vous à l’international ?",
+            "a": "Oui, nous expédions en Europe et à l’international."
+          },
+          {
+            "q": "Que faire si mon colis est endommagé ?",
+            "a": "Contactez-nous sous 48h avec une photo et votre numéro de commande, nous trouverons une solution."
+          }
+        ]
+      },
+      {
+        "name": "Produits",
+        "items": [
+          {
+            "q": "Vos produits sont-ils 100% naturels ?",
+            "a": "Oui, nos chapelets, huiles et pierres sont issus de matières naturelles et d’un artisanat authentique."
+          },
+          {
+            "q": "Comment entretenir mon chapelet en bois ?",
+            "a": "Évitez l’eau et l’humidité prolongée, essuyez avec un chiffon doux. Une goutte d’huile d’olive ravive le bois."
+          },
+          {
+            "q": "Les pierres précieuses sont-elles certifiées ?",
+            "a": "Nos pierres sont sélectionnées avec soin ; un certificat d’authenticité est fourni sur demande pour les pièces concernées."
+          }
+        ]
+      },
+      {
+        "name": "Retours",
+        "items": [
+          {
+            "q": "Quelle est votre politique de retour ?",
+            "a": "Retour sous 7 jours après réception, produit non utilisé dans son emballage d’origine."
+          },
+          {
+            "q": "Comment initier un retour ?",
+            "a": "Contactez contact@dardmana.ma ou WhatsApp avec une photo et votre numéro de commande."
+          },
+          {
+            "q": "Dans quel délai suis-je remboursé ?",
+            "a": "Sous 5 à 10 jours ouvrés après réception et vérification du retour."
+          }
+        ]
+      }
+    ]
+  },
+  "LimitedEditions": {
+    "metaTitle": "Éditions Limitées",
+    "metaDescription": "Des créations uniques en quantité limitée. Une fois épuisées, elles ne seront plus reproduites.",
+    "badge": "🔥 Éditions Limitées",
+    "title": "Éditions Limitées",
+    "subtitle": "Des créations uniques, disponibles en quantité limitée. Une fois épuisées, elles ne seront plus reproduites.",
+    "emptyTitle": "Aucune édition limitée pour le moment",
+    "emptyText": "Revenez bientôt pour découvrir nos prochaines créations en série limitée.",
+    "browse": "Voir le catalogue",
+    "endsIn": "Se termine dans"
   }
 }

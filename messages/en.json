@@ -145,7 +145,8 @@
     "selectRating": "Select a rating",
     "ratingValue": "Rating: {value}",
     "starCount": "{count} stars",
-    "soldOut": "Sold out"
+    "soldOut": "Sold out",
+    "limitedStock": "Only {count} piece{count, plural, one {} other {s}} left"
   },
   "Catalogue": {
     "title": "The Catalogue",
@@ -398,7 +399,8 @@
   },
   "Announcement": {
     "freeShipping": "Free shipping on orders over 800 MAD",
-    "message": "Express 24-48h delivery across Morocco"
+    "message": "Express 24-48h delivery across Morocco",
+    "limitedEditions": "🔥 {count} limited edition{count, plural, one {} other {s}} available"
   },
   "Search": {
     "placeholder": "Search for a product, a collection…",
@@ -756,5 +758,115 @@
     "all": "All",
     "empty": "No products yet.",
     "browse": "Browse catalogue"
+  },
+  "Faq": {
+    "metaTitle": "FAQ — Frequently asked questions",
+    "metaDescription": "Answers to common questions about orders, payment, shipping, products and returns at Dar Dmana.",
+    "title": "Frequently asked questions",
+    "subtitle": "Quickly find an answer to your questions.",
+    "searchPlaceholder": "Search a question…",
+    "noResults": "No question matches your search.",
+    "categories": [
+      {
+        "name": "Orders",
+        "items": [
+          {
+            "q": "How do I place an order?",
+            "a": "Add your items to the cart then follow the payment steps. You will receive an email confirmation."
+          },
+          {
+            "q": "Can I edit my order after confirmation?",
+            "a": "Contact us quickly via WhatsApp or email: as long as the order has not shipped, we can edit it."
+          },
+          {
+            "q": "How do I cancel my order?",
+            "a": "Email contact@dardmana.ma with your order number. Cancellation is possible before shipping."
+          },
+          {
+            "q": "How do I track my order?",
+            "a": "Use the Order tracking page with your order number and phone."
+          }
+        ]
+      },
+      {
+        "name": "Payment",
+        "items": [
+          {
+            "q": "Which payment methods do you accept?",
+            "a": "Cash on delivery (COD), bank card (CMI) and secure international payment."
+          },
+          {
+            "q": "Is online payment secure?",
+            "a": "Yes, all transactions are encrypted and processed via certified providers."
+          },
+          {
+            "q": "Can I pay on delivery?",
+            "a": "Yes, cash on delivery is available everywhere in Morocco."
+          }
+        ]
+      },
+      {
+        "name": "Shipping",
+        "items": [
+          {
+            "q": "What are the delivery times?",
+            "a": "Morocco: 24-48h. Europe: 7-10 days. International: 10-20 days."
+          },
+          {
+            "q": "Do you ship internationally?",
+            "a": "Yes, we ship to Europe and worldwide."
+          },
+          {
+            "q": "What if my parcel is damaged?",
+            "a": "Contact us within 48h with a photo and your order number, we will find a solution."
+          }
+        ]
+      },
+      {
+        "name": "Products",
+        "items": [
+          {
+            "q": "Are your products 100% natural?",
+            "a": "Yes, our prayer beads, oils and stones come from natural materials and authentic craftsmanship."
+          },
+          {
+            "q": "How do I care for my wooden prayer beads?",
+            "a": "Avoid water and prolonged humidity, wipe with a soft cloth. A drop of olive oil revives the wood."
+          },
+          {
+            "q": "Are the precious stones certified?",
+            "a": "Our stones are carefully selected; a certificate of authenticity is provided on request for relevant pieces."
+          }
+        ]
+      },
+      {
+        "name": "Returns",
+        "items": [
+          {
+            "q": "What is your return policy?",
+            "a": "Return within 7 days of delivery, unused product in its original packaging."
+          },
+          {
+            "q": "How do I start a return?",
+            "a": "Contact contact@dardmana.ma or WhatsApp with a photo and your order number."
+          },
+          {
+            "q": "How soon am I refunded?",
+            "a": "Within 5 to 10 business days after we receive and verify the return."
+          }
+        ]
+      }
+    ]
+  },
+  "LimitedEditions": {
+    "metaTitle": "Limited Editions",
+    "metaDescription": "Unique creations in limited quantities. Once sold out, they will not be reproduced.",
+    "badge": "🔥 Limited Editions",
+    "title": "Limited Editions",
+    "subtitle": "Unique creations, available in limited quantities. Once sold out, they will not be reproduced.",
+    "emptyTitle": "No limited edition right now",
+    "emptyText": "Come back soon to discover our upcoming limited-series creations.",
+    "browse": "Browse catalogue",
+    "endsIn": "Ends in"
   }
 }
