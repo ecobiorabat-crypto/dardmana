@@ -40,7 +40,7 @@ export default async function HomePage({
 
   // Bascules du nouveau design (repli intégral sur l'ancien si non configuré).
   const useHeroSlider = homepage.heroSlides.length > 0
-  const useCategoryGrid = Object.values(homepage.categoryGridImages).some((u) => Boolean(u))
+  const useCategoryGrid = homepage.categoryGrid.some((t) => t.imageFr || t.imageAr)
 
   // Section « Notre savoir-faire » — overrides CMS (repli sur les traductions
   // géré dans le composant si une valeur est vide).
@@ -201,7 +201,7 @@ export default async function HomePage({
         />
       )}
       {useCategoryGrid ? (
-        <LuxuryCategoryGrid images={homepage.categoryGridImages} />
+        <LuxuryCategoryGrid tiles={homepage.categoryGrid} />
       ) : (
         <CategoriesGrid />
       )}

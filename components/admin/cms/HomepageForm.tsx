@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ImageUploader } from '@/components/admin/produits/ImageUploader'
 import { updateHomepageAction } from '@/app/admin/(panel)/cms/actions'
-import { EMPTY_HERO_SLIDE, type CategoryGridImages, type HeroSlide } from '@/lib/homepage-types'
+import { EMPTY_HERO_SLIDE, type CategoryGridTile, type HeroSlide } from '@/lib/homepage-types'
 import type { HomepageSettingsData } from '@/lib/homepage'
 
 /** Garantit exactement 3 slides éditables (les vides sont filtrés à la sauvegarde). */
@@ -17,12 +17,9 @@ function slideIsEmpty(s: HeroSlide): boolean {
   return !s.imageFr && !s.imageAr && !s.titleFr && !s.titleAr && !s.subtitleFr && !s.subtitleAr
 }
 
-const CATEGORY_TILES: { key: keyof CategoryGridImages; label: string }[] = [
-  { key: 'sabhah', label: 'Sabhah' },
-  { key: 'bracelets', label: 'Bracelets' },
-  { key: 'huiles', label: 'Huiles parfumées' },
-  { key: 'pierres', label: 'Pierres naturelles' },
-]
+const CATEGORY_LABELS: Record<string, string> = {
+  sabhah: 'Sabhah', bracelets: 'Bracelets', huiles: 'Huiles parfumées', pierres: 'Pierres naturelles',
+}
 
 /** Contrôle compact : aperçu + suppression si une image existe, sinon uploader. */
 function SlideImage({ label, url, onChange }: { label: string; url: string; onChange: (u: string) => void }) {
@@ -93,8 +90,11 @@ export function HomepageForm({
     }))
   }
 
-  function setCategoryImg(key: keyof CategoryGridImages, url: string) {
-    setForm((f) => ({ ...f, categoryGridImages: { ...f.categoryGridImages, [key]: url } }))
+  function setTile(i: number, patch: Partial<CategoryGridTile>) {
+    setForm((f) => ({
+      ...f,
+      categoryGrid: f.categoryGrid.map((t, idx) => (idx === i ? { ...t, ...patch } : t)),
+    }))
   }
 
   function toggleFeatured(id: string) {
@@ -427,21 +427,58 @@ export function HomepageForm({
         </div>
       </section>
 
-      {/* Images catégories */}
+      {/* Tuiles catégories (titre / description / lien / image, FR/AR/EN) */}
       <section className="border border-[var(--bordure)] bg-[var(--blanc)] p-5">
-        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Images catégories</h3>
+        <h3 className="mb-1 font-titre text-lg text-[var(--vert-fonce)]">Tuiles catégories</h3>
         <p className="mb-4 text-xs text-[var(--texte-doux)]">
           Grille de 4 tuiles sous le slider. Dès qu’une image est définie, la grille luxe
-          remplace la grille catégories classique.
+          remplace la grille catégories classique. Titre/description vides → valeurs par défaut.
         </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {CATEGORY_TILES.map((tile) => (
-            <SlideImage
-              key={tile.key}
-              label={tile.label}
-              url={form.categoryGridImages[tile.key]}
-              onChange={(u) => setCategoryImg(tile.key, u)}
-            />
+
+        <div className="space-y-5">
+          {form.categoryGrid.map((tile, i) => (
+            <div key={tile.key} className="border border-[var(--bordure)] p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vert-fonce)]">
+                {CATEGORY_LABELS[tile.key] ?? tile.key}
+              </p>
+
+              <SlideImage
+                label="Image"
+                url={tile.imageFr}
+                onChange={(u) => setTile(i, { imageFr: u })}
+              />
+
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <label className={labelCls}>Titre FR</label>
+                  <input className={inputCls} value={tile.titleFr} onChange={(e) => setTile(i, { titleFr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Titre AR</label>
+                  <input dir="rtl" className={inputCls} value={tile.titleAr} onChange={(e) => setTile(i, { titleAr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Titre EN</label>
+                  <input className={inputCls} value={tile.titleEn} onChange={(e) => setTile(i, { titleEn: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Description FR</label>
+                  <input className={inputCls} value={tile.descriptionFr} onChange={(e) => setTile(i, { descriptionFr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Description AR</label>
+                  <input dir="rtl" className={inputCls} value={tile.descriptionAr} onChange={(e) => setTile(i, { descriptionAr: e.target.value })} />
+                </div>
+                <div>
+                  <label className={labelCls}>Description EN</label>
+                  <input className={inputCls} value={tile.descriptionEn} onChange={(e) => setTile(i, { descriptionEn: e.target.value })} />
+                </div>
+                <div className="sm:col-span-3">
+                  <label className={labelCls}>Lien</label>
+                  <input className={inputCls} value={tile.link} onChange={(e) => setTile(i, { link: e.target.value })} placeholder="/catalogue/chapelet" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </section>

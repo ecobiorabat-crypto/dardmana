@@ -656,5 +656,105 @@
     "successMessage": "Merci ! Ton témoignage sera publié après vérification 🤍",
     "errorGeneric": "Une erreur est survenue. Réessaie.",
     "likeAria": "J'aime ce témoignage"
+  },
+  "Tracking": {
+    "metaTitle": "Suivi de commande",
+    "metaDescription": "Suivez l'état de votre commande Dar Dmana en temps réel.",
+    "title": "Suivi de commande",
+    "subtitle": "Entrez votre numéro de commande et votre téléphone pour suivre votre colis.",
+    "orderNumberLabel": "Numéro de commande",
+    "orderNumberPlaceholder": "DD-XXXXXX",
+    "phoneLabel": "Téléphone",
+    "phonePlaceholder": "0612345678",
+    "submit": "Suivre ma commande",
+    "searching": "Recherche…",
+    "notFound": "Commande introuvable. Vérifiez le numéro de commande et le téléphone utilisés lors de l'achat.",
+    "error": "Une erreur est survenue. Réessayez.",
+    "resultFor": "Commande",
+    "orderedOn": "Commandée le",
+    "currentStatus": "Statut actuel",
+    "trackingNumber": "Numéro de suivi",
+    "carrier": "Transporteur",
+    "trackPackage": "Suivre le colis ↗",
+    "items": "Produits commandés",
+    "history": "Historique",
+    "noTracking": "Aucun numéro de suivi pour le moment.",
+    "status": {
+      "NEW": "Nouvelle",
+      "CONFIRMED": "Confirmée",
+      "PROCESSING": "En préparation",
+      "SHIPPED": "Expédiée",
+      "DELIVERED": "Livrée",
+      "CANCELLED": "Annulée",
+      "REFUNDED": "Remboursée"
+    }
+  },
+  "Shipping": {
+    "metaTitle": "Livraison & Retours",
+    "metaDescription": "Délais de livraison, tarifs et politique de retours Dar Dmana.",
+    "title": "Livraison & Retours",
+    "subtitle": "Tout savoir sur l'expédition de votre commande et nos conditions de retour.",
+    "delaysTitle": "Délais de livraison",
+    "rows": [
+      {
+        "zone": "Maroc — Standard",
+        "time": "24-48h",
+        "price": "25 MAD (gratuit dès 500 MAD)"
+      },
+      {
+        "zone": "Maroc — Express",
+        "time": "24h",
+        "price": "50 MAD"
+      },
+      {
+        "zone": "Europe",
+        "time": "7-10 jours",
+        "price": "12 EUR (gratuit dès 150 EUR)"
+      },
+      {
+        "zone": "International",
+        "time": "10-20 jours",
+        "price": "20 EUR"
+      }
+    ],
+    "colZone": "Destination",
+    "colTime": "Délai",
+    "colPrice": "Tarif",
+    "returnsTitle": "Politique de retours",
+    "returnDelayLabel": "Délai",
+    "returnDelay": "7 jours après réception",
+    "returnConditionsLabel": "Conditions",
+    "returnConditions": "Produit non utilisé, dans son emballage d'origine.",
+    "returnHowLabel": "Comment faire",
+    "returnHow": "Contactez contact@dardmana.ma ou par WhatsApp avec une photo et votre numéro de commande.",
+    "returnRefundLabel": "Remboursement",
+    "returnRefund": "Sous 5 à 10 jours ouvrés après réception du retour.",
+    "faqTitle": "Questions fréquentes",
+    "faq": [
+      {
+        "q": "Comment suivre ma commande ?",
+        "a": "Rendez-vous sur la page Suivi de commande avec votre numéro et votre téléphone."
+      },
+      {
+        "q": "Livrez-vous partout au Maroc ?",
+        "a": "Oui, nous expédions dans toutes les villes du Royaume sous 24-48h."
+      },
+      {
+        "q": "La livraison est-elle offerte ?",
+        "a": "Oui, dès 500 MAD d'achat au Maroc et 150 EUR en Europe."
+      }
+    ],
+    "ctaTitle": "Une question ?",
+    "ctaButton": "Contactez-nous"
+  },
+  "BestSellers": {
+    "metaTitle": "Best Sellers",
+    "metaDescription": "Nos pièces les plus vendues — l'artisanat marocain plébiscité par nos clients.",
+    "badge": "⭐ Best Sellers",
+    "title": "Les plus vendus",
+    "subtitle": "Les créations préférées de nos clients, les plus commandées.",
+    "all": "Toutes",
+    "empty": "Aucun produit pour le moment.",
+    "browse": "Voir le catalogue"
   }
 }

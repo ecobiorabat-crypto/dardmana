@@ -16,7 +16,7 @@ const COLUMNS: FooterColumn[] = [
     titleKey: 'collections',
     links: [
       { labelKey: 'newArrivals', href: '/nouveautes' },
-      { labelKey: 'bestSellers', href: '/collections/best-sellers' },
+      { labelKey: 'bestSellers', href: '/best-sellers' },
       { labelKey: 'limitedEditions', href: '/collections/editions-limitees' },
       { labelKey: 'allCollections', href: '/collections' },
     ],
@@ -26,7 +26,7 @@ const COLUMNS: FooterColumn[] = [
     links: [
       { labelKey: 'ourStory', href: '/notre-histoire' },
       { labelKey: 'guestbook', href: '/livre-dor' },
-      { labelKey: 'shippingReturns', href: '/livraison' },
+      { labelKey: 'shippingReturns', href: '/livraison-retours' },
       { labelKey: 'faq', href: '/faq' },
       { labelKey: 'orderTracking', href: '/suivi' },
     ],

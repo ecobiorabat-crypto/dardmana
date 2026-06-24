@@ -109,6 +109,12 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         <h1 className="font-titre text-3xl text-[var(--vert-fonce)]">
           {t('OrderDetail.orderTitle', { number: order.orderNumber })}
         </h1>
+        <Link
+          href={localizedHref(locale, '/suivi')}
+          className="inline-flex items-center gap-1.5 border border-[var(--vert-fonce)] px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] text-[var(--vert-fonce)] transition-colors hover:bg-[var(--vert-fonce)] hover:text-[var(--creme)]"
+        >
+          {t('Tracking.submit')}
+        </Link>
         <span className="flex items-center gap-1.5 text-sm" style={{ color: meta.color }}>
           <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: meta.color }} />
           {t(`OrderStatus.${order.orderStatus}`)}

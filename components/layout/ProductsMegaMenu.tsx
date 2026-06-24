@@ -138,14 +138,23 @@ export function ProductsMegaMenu({ label, href }: { label: string; href: string 
                 </div>
               )}
 
-              <Link
-                href={localizedHref(locale, '/catalogue')}
-                onClick={closeNow}
-                className="mt-2 flex items-center justify-center gap-1.5 border-t border-[var(--bordure)] pt-3 text-xs font-medium uppercase tracking-[0.12em] text-[var(--vert-fonce)] transition-colors hover:text-[var(--or-royal)]"
-              >
-                {t('Nav.allCatalogue')}
-                <span aria-hidden="true">→</span>
-              </Link>
+              <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--bordure)] pt-3">
+                <Link
+                  href={localizedHref(locale, '/best-sellers')}
+                  onClick={closeNow}
+                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--or-royal)] transition-colors hover:text-[var(--vert-fonce)]"
+                >
+                  ⭐ {t('BestSellers.metaTitle')}
+                </Link>
+                <Link
+                  href={localizedHref(locale, '/catalogue')}
+                  onClick={closeNow}
+                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--vert-fonce)] transition-colors hover:text-[var(--or-royal)]"
+                >
+                  {t('Nav.allCatalogue')}
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </div>
           </div>,
           document.body,

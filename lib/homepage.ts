@@ -1,14 +1,16 @@
 import { prisma } from '@/lib/prisma'
 import type { Prisma } from '@prisma/client'
 import {
+  DEFAULT_CATEGORY_GRID,
   EMPTY_CATEGORY_GRID,
   type CategoryGridImages,
+  type CategoryGridTile,
   type HeroSlide,
 } from '@/lib/homepage-types'
 
 // Ré-exports pour conserver les imports existants `from '@/lib/homepage'`.
-export { EMPTY_HERO_SLIDE, EMPTY_CATEGORY_GRID } from '@/lib/homepage-types'
-export type { HeroSlide, CategoryGridImages } from '@/lib/homepage-types'
+export { EMPTY_HERO_SLIDE, EMPTY_CATEGORY_GRID, DEFAULT_CATEGORY_GRID } from '@/lib/homepage-types'
+export type { HeroSlide, CategoryGridImages, CategoryGridTile } from '@/lib/homepage-types'
 
 const SINGLETON_ID = 'singleton'
 
@@ -55,6 +57,7 @@ export interface HomepageSettingsData {
   storytellingImageUrl: string | null
   heroSlides: HeroSlide[]
   categoryGridImages: CategoryGridImages
+  categoryGrid: CategoryGridTile[]
   featuredSliderEnabled: boolean
 }
 
@@ -110,6 +113,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
   storytellingImageUrl: null,
   heroSlides: [],
   categoryGridImages: EMPTY_CATEGORY_GRID,
+  categoryGrid: DEFAULT_CATEGORY_GRID,
   featuredSliderEnabled: false,
 }
 
@@ -129,12 +133,47 @@ function parseHeroSlides(raw: Prisma.JsonValue | null | undefined): HeroSlide[] 
   })
 }
 
-/** Normalise une valeur JSON brute en CategoryGridImages. */
+/** Normalise une valeur JSON brute en CategoryGridImages (legacy). */
 function parseCategoryGrid(raw: Prisma.JsonValue | null | undefined): CategoryGridImages {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ...EMPTY_CATEGORY_GRID }
   const o = raw as Record<string, unknown>
   const str = (k: string) => (typeof o[k] === 'string' ? (o[k] as string) : '')
   return { sabhah: str('sabhah'), bracelets: str('bracelets'), huiles: str('huiles'), pierres: str('pierres') }
+}
+
+/**
+ * Construit les 4 tuiles catégories : part des défauts, applique les overrides
+ * `categoryGrid` (JSON), et récupère les images legacy `categoryGridImages`
+ * si une tuile n'a pas encore d'image (pas de régression).
+ */
+function buildCategoryGrid(
+  raw: Prisma.JsonValue | null | undefined,
+  legacy: CategoryGridImages,
+): CategoryGridTile[] {
+  const arr = Array.isArray(raw) ? (raw as Record<string, unknown>[]) : []
+  const byKey = new Map<string, Record<string, unknown>>()
+  for (const t of arr) {
+    if (t && typeof t === 'object' && typeof t.key === 'string') byKey.set(t.key, t)
+  }
+  return DEFAULT_CATEGORY_GRID.map((def) => {
+    const o = byKey.get(def.key) ?? {}
+    const str = (k: keyof CategoryGridTile) =>
+      typeof o[k] === 'string' && (o[k] as string).length > 0 ? (o[k] as string) : def[k]
+    const legacyImg = (legacy as unknown as Record<string, string>)[def.key] || ''
+    const imageFr = typeof o.imageFr === 'string' && o.imageFr ? o.imageFr : legacyImg
+    return {
+      key: def.key,
+      imageFr,
+      imageAr: typeof o.imageAr === 'string' && o.imageAr ? (o.imageAr as string) : imageFr,
+      titleFr: str('titleFr'),
+      titleAr: str('titleAr'),
+      titleEn: str('titleEn'),
+      descriptionFr: typeof o.descriptionFr === 'string' ? (o.descriptionFr as string) : '',
+      descriptionAr: typeof o.descriptionAr === 'string' ? (o.descriptionAr as string) : '',
+      descriptionEn: typeof o.descriptionEn === 'string' ? (o.descriptionEn as string) : '',
+      link: typeof o.link === 'string' && o.link ? (o.link as string) : def.link,
+    }
+  })
 }
 
 /**
@@ -166,6 +205,7 @@ export async function getHomepageSettings(): Promise<HomepageSettingsData> {
       storytellingImageUrl: row.storytellingImageUrl,
       heroSlides: parseHeroSlides(row.heroSlides),
       categoryGridImages: parseCategoryGrid(row.categoryGridImages),
+      categoryGrid: buildCategoryGrid(row.categoryGrid, parseCategoryGrid(row.categoryGridImages)),
       featuredSliderEnabled: row.featuredSliderEnabled,
       ...storytelling,
     }
