@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
+import { useCurrentLocale } from '@/components/layout/nav'
 import { cn } from '@/lib/utils/cn'
 import type { HeroSlide } from '@/lib/homepage'
 
@@ -12,7 +11,8 @@ const AUTOPLAY_MS = 5000
 
 /**
  * Slider Hero cinématique (style marocain de luxe) : 3 slides max, fond image
- * plein écran, titre arabe + français superposés, bouton « Découvrir ».
+ * plein écran, titre arabe + français superposés. Le bouton « Découvrir » fait
+ * partie du visuel de l'image — pas de CTA séparé.
  * Auto-play 5 s (pause au survol), fondu doux (Framer Motion), points + flèches.
  */
 export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
@@ -34,9 +34,6 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const isAr = locale === 'ar'
   const image = (isAr ? slide.imageAr || slide.imageFr : slide.imageFr || slide.imageAr) || ''
   const subtitle = isAr ? slide.subtitleAr || slide.subtitleFr : slide.subtitleFr || slide.subtitleAr
-  const buttonText =
-    (isAr ? slide.buttonTextAr : slide.buttonTextFr) || slide.buttonTextFr || slide.buttonTextAr || 'Découvrir'
-  const buttonLink = slide.buttonLink?.trim() || '/catalogue'
 
   return (
     <section className="bg-[var(--sable)]">
@@ -156,17 +153,6 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ))}
         </div>
       )}
-      </div>
-
-      {/* ─── Bouton « Découvrir » — APRÈS le slider, centré sur fond crème
-          (plus aucun chevauchement avec l'image). ─── */}
-      <div className="flex justify-center bg-[var(--sable)] py-6">
-        <Link
-          href={localizedHref(locale, buttonLink)}
-          className="inline-flex items-center justify-center rounded-full bg-[var(--vert-fonce)] px-10 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[var(--creme)] shadow-[0_10px_30px_-14px_rgba(20,19,15,0.6)] transition-colors hover:bg-[var(--vert-moyen)]"
-        >
-          {buttonText}
-        </Link>
       </div>
     </section>
   )
