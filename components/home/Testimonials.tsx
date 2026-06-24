@@ -1,8 +1,10 @@
 'use client'
 
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Reveal } from '@/components/ui/Reveal'
 import { RatingStars } from '@/components/ui/RatingStars'
+import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
 
 interface Testimonial {
   quoteKey: string
@@ -27,6 +29,7 @@ export interface FeaturedTestimonial {
 
 export function Testimonials({ featured = [] }: { featured?: FeaturedTestimonial[] } = {}) {
   const t = useTranslations('Testimonials')
+  const locale = useCurrentLocale()
 
   // Utilise les témoignages mis en avant si disponibles, sinon repli statique.
   const items =
@@ -70,6 +73,17 @@ export function Testimonials({ featured = [] }: { featured?: FeaturedTestimonial
             </Reveal>
           ))}
         </div>
+
+        <Reveal>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href={localizedHref(locale, '/livre-dor')}
+              className="rounded-[2px] border border-[var(--vert-fonce)] px-8 py-3 text-sm font-medium text-[var(--vert-fonce)] transition-colors hover:bg-[var(--vert-fonce)] hover:text-[var(--blanc)]"
+            >
+              {t('viewAll')}
+            </Link>
+          </div>
+        </Reveal>
       </div>
     </section>
   )
