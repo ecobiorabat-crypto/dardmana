@@ -562,6 +562,9 @@ model HomepageSettings {
   categoryGrid Json?
   // Slider produits vedettes (sinon section best-sellers classique).
   featuredSliderEnabled Boolean @default(false)
+  // Nombre de produits affichés (best-sellers) et dans le slider vedette.
+  featuredProductsCount Int @default(4)
+  featuredSliderCount   Int @default(5)
 
   updatedAt DateTime @updatedAt @default(now())
 }

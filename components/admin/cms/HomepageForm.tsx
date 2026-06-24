@@ -491,6 +491,33 @@ export function HomepageForm({
           « En vedette » sont utilisés.
         </p>
 
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>Nombre de produits à afficher</label>
+            <select
+              className={inputCls}
+              value={form.featuredProductsCount}
+              onChange={(e) => set('featuredProductsCount', Number(e.target.value))}
+            >
+              {[4, 6, 8, 12].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Nombre dans le slider</label>
+            <select
+              className={inputCls}
+              value={form.featuredSliderCount}
+              onChange={(e) => set('featuredSliderCount', Number(e.target.value))}
+            >
+              {[3, 4, 5, 6].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <label className="mb-4 flex items-center gap-3">
           <input
             type="checkbox"

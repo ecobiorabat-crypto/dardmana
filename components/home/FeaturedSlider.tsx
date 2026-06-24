@@ -10,20 +10,21 @@ import type { ProductCardData } from '@/lib/utils/product'
  * Carrousel horizontal de produits vedettes (image, nom, prix, bouton panier
  * via ProductCard). Alternative au bloc « best-sellers » classique.
  */
-export function FeaturedSlider({ featuredIds }: { featuredIds?: string[] }) {
+export function FeaturedSlider({ featuredIds, count = 5 }: { featuredIds?: string[]; count?: number }) {
   const t = useTranslations()
   const [products, setProducts] = useState<ProductCardData[] | null>(null)
 
   const key = featuredIds?.join(',') ?? ''
   useEffect(() => {
     const controller = new AbortController()
-    const query = key ? `ids=${encodeURIComponent(key)}&limit=8` : 'isFeatured=true&limit=8'
+    const limit = Math.max(1, count)
+    const query = key ? `ids=${encodeURIComponent(key)}&limit=${limit}` : `isFeatured=true&limit=${limit}`
     fetch(`/api/products?${query}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProducts(d.products ?? []))
       .catch(() => setProducts([]))
     return () => controller.abort()
-  }, [key])
+  }, [key, count])
 
   return (
     <section className="bg-[var(--sable)]/40">

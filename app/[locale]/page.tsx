@@ -208,9 +208,9 @@ export default async function HomePage({
       {/* Bande de réassurance, juste sous les tuiles catégories */}
       <TrustStrip />
       {homepage.featuredSliderEnabled ? (
-        <FeaturedSlider featuredIds={homepage.featuredProductIds} />
+        <FeaturedSlider featuredIds={homepage.featuredProductIds} count={homepage.featuredSliderCount} />
       ) : (
-        <BestSellers featuredIds={homepage.featuredProductIds} />
+        <BestSellers featuredIds={homepage.featuredProductIds} count={homepage.featuredProductsCount} />
       )}
       <StorySection content={storyContent} />
       <Testimonials featured={featured} />

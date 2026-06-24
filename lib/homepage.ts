@@ -59,6 +59,8 @@ export interface HomepageSettingsData {
   categoryGridImages: CategoryGridImages
   categoryGrid: CategoryGridTile[]
   featuredSliderEnabled: boolean
+  featuredProductsCount: number
+  featuredSliderCount: number
 }
 
 const STORYTELLING_KEYS = [
@@ -115,6 +117,8 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
   categoryGridImages: EMPTY_CATEGORY_GRID,
   categoryGrid: DEFAULT_CATEGORY_GRID,
   featuredSliderEnabled: false,
+  featuredProductsCount: 4,
+  featuredSliderCount: 5,
 }
 
 /** Normalise une valeur JSON brute en tableau de HeroSlide. */
@@ -207,6 +211,8 @@ export async function getHomepageSettings(): Promise<HomepageSettingsData> {
       categoryGridImages: parseCategoryGrid(row.categoryGridImages),
       categoryGrid: buildCategoryGrid(row.categoryGrid, parseCategoryGrid(row.categoryGridImages)),
       featuredSliderEnabled: row.featuredSliderEnabled,
+      featuredProductsCount: row.featuredProductsCount,
+      featuredSliderCount: row.featuredSliderCount,
       ...storytelling,
     }
   } catch {

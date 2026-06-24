@@ -12,9 +12,11 @@ import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
 export interface BestSellersProps {
   /** Sélection CMS de produits mis en avant ; sinon repli sur isFeatured. */
   featuredIds?: string[]
+  /** Nombre de produits à afficher (réglé en admin). */
+  count?: number
 }
 
-export function BestSellers({ featuredIds }: BestSellersProps = {}) {
+export function BestSellers({ featuredIds, count = 4 }: BestSellersProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const [products, setProducts] = useState<ProductCardData[] | null>(null)
@@ -22,15 +24,16 @@ export function BestSellers({ featuredIds }: BestSellersProps = {}) {
   const featuredKey = featuredIds?.join(',') ?? ''
   useEffect(() => {
     const controller = new AbortController()
+    const limit = Math.max(1, count)
     const query = featuredKey
-      ? `ids=${encodeURIComponent(featuredKey)}&limit=8`
-      : 'isFeatured=true&limit=4'
+      ? `ids=${encodeURIComponent(featuredKey)}&limit=${limit}`
+      : `isFeatured=true&limit=${limit}`
     fetch(`/api/products?${query}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProducts(d.products ?? []))
       .catch(() => setProducts([]))
     return () => controller.abort()
-  }, [featuredKey])
+  }, [featuredKey, count])
 
   return (
     <section className="bg-[var(--gris-perle)]/40">
