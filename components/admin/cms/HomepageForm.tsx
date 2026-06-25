@@ -328,6 +328,20 @@ export function HomepageForm({
           </div>
         ))}
 
+        {/* Lien du bouton (commun à toutes les langues) */}
+        <div className="mt-2">
+          <label className={labelCls}>Lien du bouton</label>
+          <input
+            className={inputCls}
+            value={form.storytellingButtonLink ?? ''}
+            onChange={(e) => set('storytellingButtonLink', e.target.value)}
+            placeholder="/notre-histoire"
+          />
+          <p className="mt-1 text-xs text-[var(--texte-doux)]">
+            Chemin de destination du bouton « Découvrir notre histoire » (ex : /notre-histoire).
+          </p>
+        </div>
+
         {/* Image savoir-faire (colonne droite) */}
         <div className="mt-6 border-t border-[var(--bordure)] pt-5">
           <p className="mb-1 text-sm font-medium text-[var(--texte)]">Image savoir-faire</p>

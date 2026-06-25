@@ -54,6 +54,7 @@ export interface HomepageSettingsData {
   storytellingButtonTextFr: string | null
   storytellingButtonTextAr: string | null
   storytellingButtonTextEn: string | null
+  storytellingButtonLink: string | null
   storytellingImageUrl: string | null
   heroSlides: HeroSlide[]
   categoryGridImages: CategoryGridImages
@@ -71,6 +72,7 @@ const STORYTELLING_KEYS = [
   'stat2Value', 'stat2LabelFr', 'stat2LabelAr', 'stat2LabelEn',
   'stat3Value', 'stat3LabelFr', 'stat3LabelAr', 'stat3LabelEn',
   'storytellingButtonTextFr', 'storytellingButtonTextAr', 'storytellingButtonTextEn',
+  'storytellingButtonLink',
 ] as const
 
 export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
@@ -112,6 +114,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsData = {
   storytellingButtonTextFr: null,
   storytellingButtonTextAr: null,
   storytellingButtonTextEn: null,
+  storytellingButtonLink: '/notre-histoire',
   storytellingImageUrl: null,
   heroSlides: [],
   categoryGridImages: EMPTY_CATEGORY_GRID,

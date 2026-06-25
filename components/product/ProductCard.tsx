@@ -11,6 +11,7 @@ import { RatingStars } from '@/components/ui/RatingStars'
 import { formatMad } from '@/lib/utils/price'
 import { productName, type ProductCardData } from '@/lib/utils/product'
 import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
+import { useHydrated } from '@/components/layout/hooks'
 import { cn } from '@/lib/utils/cn'
 
 export interface ProductCardProps {
@@ -25,8 +26,10 @@ export function ProductCard({ product, className, priority = false }: ProductCar
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
   const toggleWishlist = useWishlistStore((s) => s.toggleItem)
-  const inWishlist = useWishlistStore((s) => s.items.includes(product.id))
+  const inWishlistRaw = useWishlistStore((s) => s.items.includes(product.id))
   const showToast = useUiStore((s) => s.showToast)
+  // Garde anti-mismatch : l'état persisté n'est lu qu'après hydratation client.
+  const inWishlist = useHydrated() && inWishlistRaw
 
   const name = productName(product, locale)
   const price = Number(product.priceMad)

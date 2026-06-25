@@ -553,6 +553,9 @@ model HomepageSettings {
   storytellingButtonTextAr String?
   storytellingButtonTextEn String?
 
+  // Lien du bouton « Découvrir notre histoire » (éditable, non localisé).
+  storytellingButtonLink String? @default("/notre-histoire")
+
   // Image de la section savoir-faire (colonne droite) — gérée via l'admin.
   storytellingImageUrl String?
 

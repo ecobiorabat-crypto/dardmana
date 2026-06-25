@@ -72,9 +72,11 @@ export function ProductDetail({
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
   const toggleWishlist = useWishlistStore((s) => s.toggleItem)
-  const inWishlist = useWishlistStore((s) => s.items.includes(product.id))
+  const inWishlistRaw = useWishlistStore((s) => s.items.includes(product.id))
   const showToast = useUiStore((s) => s.showToast)
   const hydrated = useHydrated()
+  // Garde anti-mismatch : l'état persisté n'est lu qu'après hydratation client.
+  const inWishlist = hydrated && inWishlistRaw
 
   const [variantId, setVariantId] = useState<string | undefined>(
     product.variants[0]?.id,

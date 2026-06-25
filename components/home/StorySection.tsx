@@ -18,6 +18,7 @@ export interface StoryContent {
   stat3Value?: string
   stat3Label?: string
   imageUrl?: string
+  link?: string
 }
 
 export function StorySection({ content }: { content?: StoryContent } = {}) {
@@ -29,6 +30,7 @@ export function StorySection({ content }: { content?: StoryContent } = {}) {
   const title = c.title?.trim() || t('title')
   const body = c.body?.trim() || t('body')
   const cta = c.cta?.trim() || t('cta')
+  const link = c.link?.trim() || '/notre-histoire'
   const imageUrl = c.imageUrl?.trim() || ''
   const stats = [
     { value: c.stat1Value?.trim() || t('stat1'), label: c.stat1Label?.trim() || t('stat1Label') },
@@ -65,7 +67,7 @@ export function StorySection({ content }: { content?: StoryContent } = {}) {
             </div>
 
             <div className="mt-8">
-              <Button href={localizedHref(locale, '/notre-histoire')} variant="outline" size="md">
+              <Button href={localizedHref(locale, link)} variant="outline" size="md">
                 {cta}
               </Button>
             </div>
@@ -94,7 +96,6 @@ export function StorySection({ content }: { content?: StoryContent } = {}) {
                 </div>
               </div>
             )}
-            <div className="absolute -bottom-6 -start-6 hidden h-32 w-32 border border-[var(--or-royal)] sm:block" />
           </div>
         </Reveal>
       </div>

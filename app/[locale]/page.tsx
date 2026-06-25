@@ -49,6 +49,7 @@ export default async function HomePage({
     title: pickLocale(homepage, 'storytellingTitle', locale),
     body: pickLocale(homepage, 'storytellingText', locale),
     cta: pickLocale(homepage, 'storytellingButtonText', locale),
+    link: homepage.storytellingButtonLink ?? '/notre-histoire',
     stat1Value: homepage.stat1Value ?? '',
     stat1Label: pickLocale(homepage, 'stat1Label', locale),
     stat2Value: homepage.stat2Value ?? '',
