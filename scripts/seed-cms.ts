@@ -1,9 +1,10 @@
 /**
  * Initialise le contenu CMS éditable (idempotent) :
  *   - Singleton HomepageSettings (bandeau d'annonce activé par défaut)
- *   - Page CMS "notre-histoire" (brouillon : la version riche intégrée reste
- *     affichée tant que l'admin ne publie pas)
+ *   - Page CMS "notre-histoire" (brouillon)
  *   - Page CMS "contact-info" (brouillon)
+ *   - Page CMS "faq" (brouillon ; markdown généré depuis les traductions)
+ *   - Page CMS "livraison-retours" (brouillon ; idem)
  *
  * Les pages sont créées en BROUILLON pour ne pas remplacer le contenu actuel ;
  * l'admin les édite puis les publie quand il le souhaite.
@@ -14,12 +15,78 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 import { config } from 'dotenv'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 config({ path: '.env.local' })
 
 const pool = new Pool({ connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
+
+// ─── Génération du markdown depuis les traductions (cohérence avec le hardcode) ──
+
+type Messages = {
+  Faq: { categories: { name: string; items: { q: string; a: string }[] }[] }
+  Shipping: {
+    delaysTitle: string
+    rows: { zone: string; time: string; price: string }[]
+    returnsTitle: string
+    returnDelayLabel: string; returnDelay: string
+    returnConditionsLabel: string; returnConditions: string
+    returnHowLabel: string; returnHow: string
+    returnRefundLabel: string; returnRefund: string
+    faqTitle: string
+    faq: { q: string; a: string }[]
+  }
+}
+
+function loadMessages(locale: string): Messages {
+  return JSON.parse(readFileSync(resolve(process.cwd(), `messages/${locale}.json`), 'utf8')) as Messages
+}
+
+function faqMarkdown(m: Messages): string {
+  return m.Faq.categories
+    .map((c) => `## ${c.name}\n\n` + c.items.map((it) => `### ${it.q}\n\n${it.a}`).join('\n\n'))
+    .join('\n\n')
+}
+
+function shippingMarkdown(m: Messages): string {
+  const s = m.Shipping
+  const delays = `## ${s.delaysTitle}\n\n` + s.rows.map((r) => `- **${r.zone}** : ${r.time} — ${r.price}`).join('\n')
+  const returns =
+    `## ${s.returnsTitle}\n\n` +
+    `- **${s.returnDelayLabel}** : ${s.returnDelay}\n` +
+    `- **${s.returnConditionsLabel}** : ${s.returnConditions}\n` +
+    `- **${s.returnHowLabel}** : ${s.returnHow}\n` +
+    `- **${s.returnRefundLabel}** : ${s.returnRefund}`
+  const faq = `## ${s.faqTitle}\n\n` + s.faq.map((q) => `### ${q.q}\n\n${q.a}`).join('\n\n')
+  return [delays, returns, faq].join('\n\n')
+}
+
+const FR = loadMessages('fr')
+const AR = loadMessages('ar')
+const EN = loadMessages('en')
+
+const faqPage = {
+  slug: 'faq',
+  titleFr: 'Questions Fréquentes',
+  titleAr: 'الأسئلة الشائعة',
+  titleEn: 'Frequently Asked Questions',
+  contentFr: faqMarkdown(FR),
+  contentAr: faqMarkdown(AR),
+  contentEn: faqMarkdown(EN),
+}
+
+const livraisonRetours = {
+  slug: 'livraison-retours',
+  titleFr: 'Livraison & Retours',
+  titleAr: 'التوصيل والإرجاع',
+  titleEn: 'Shipping & Returns',
+  contentFr: shippingMarkdown(FR),
+  contentAr: shippingMarkdown(AR),
+  contentEn: shippingMarkdown(EN),
+}
 
 const notreHistoire = {
   slug: 'notre-histoire',
@@ -105,6 +172,8 @@ async function main() {
 
   await seedPage(notreHistoire)
   await seedPage(contactInfo)
+  await seedPage(faqPage)
+  await seedPage(livraisonRetours)
 
   console.log('\n──────── Seed CMS terminé ────────')
 }
