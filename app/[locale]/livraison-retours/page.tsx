@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
 import { Button } from '@/components/ui/Button'
@@ -34,6 +35,7 @@ interface Faq { q: string; a: string }
 export default async function LivraisonRetoursPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("livraisonRetours", locale)
   const t = await getTranslations('Shipping')
 
   // Contenu géré via CMS si publié, sinon contenu structuré ci-dessous.

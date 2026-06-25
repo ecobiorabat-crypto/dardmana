@@ -10,11 +10,12 @@ import { useUiStore } from '@/store/ui'
 import { NAV_LINKS, localizedHref, useCurrentLocale } from './nav'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileCategoriesAccordion } from './MobileCategoriesAccordion'
+import { DEFAULT_NAV_CONFIG, isLinkEnabled, type NavConfig } from '@/lib/nav-config-types'
 import { cn } from '@/lib/utils/cn'
 
 const SWIPE_CLOSE = 80
 
-export function MobileMenu() {
+export function MobileMenu({ navConfig = DEFAULT_NAV_CONFIG }: { navConfig?: NavConfig } = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const isRtl = locale === 'ar'
@@ -93,7 +94,7 @@ export function MobileMenu() {
             </div>
 
             <ul className="flex flex-col px-2 py-4">
-              {NAV_LINKS.map((link) =>
+              {NAV_LINKS.filter((link) => isLinkEnabled(navConfig, link.href)).map((link) =>
                 link.megaMenu ? (
                   <MobileCategoriesAccordion key={link.href} label={t(`Nav.${link.key}`)} onNavigate={close} />
                 ) : (

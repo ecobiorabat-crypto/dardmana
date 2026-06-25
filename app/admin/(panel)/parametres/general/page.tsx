@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/admin/ui'
 import { BrandingForm } from '@/components/admin/parametres/BrandingForm'
 import { ContactSocialForm } from '@/components/admin/parametres/ContactSocialForm'
 import { WhatsappNotifyForm } from '@/components/admin/parametres/WhatsappNotifyForm'
+import { NavConfigForm } from '@/components/admin/parametres/NavConfigForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +34,14 @@ export default async function GeneralSettingsPage() {
           subtitle="Recevoir une alerte WhatsApp à chaque nouvelle commande (via CallMeBot)"
         />
         <WhatsappNotifyForm initial={settings} />
+      </section>
+
+      <section>
+        <PageHeader
+          title="Navigation & Pages"
+          subtitle="Activez ou désactivez les pages et liens de navigation"
+        />
+        <NavConfigForm initial={settings.navConfig} />
       </section>
     </div>
   )

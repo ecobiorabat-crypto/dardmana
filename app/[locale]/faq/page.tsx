@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
 import { Markdown } from '@/components/ui/Markdown'
@@ -30,6 +31,7 @@ export async function generateMetadata({
 export default async function FaqPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("faq", locale)
   const t = await getTranslations('Faq')
 
   // Contenu géré via CMS si publié, sinon accordéon structuré.

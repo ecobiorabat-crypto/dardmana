@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { Markdown } from '@/components/ui/Markdown'
@@ -95,6 +96,7 @@ export default async function ContactPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("contact", locale)
   const t = await getTranslations('Contact')
 
   // Coordonnées globales (admin) avec repli sur les traductions intégrées.

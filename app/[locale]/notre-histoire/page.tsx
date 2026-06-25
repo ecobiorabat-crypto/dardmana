@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
@@ -80,6 +81,7 @@ export default async function NotreHistoirePage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("notreHistoire", locale)
   const t = await getTranslations('History')
 
   // Contenu géré via l'admin (CMS). Si la page est publiée, on l'affiche ;

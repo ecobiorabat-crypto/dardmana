@@ -1,4 +1,8 @@
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
+import { DEFAULT_NAV_CONFIG, parseNavConfig, type NavConfig } from '@/lib/nav-config-types'
+
+export type { NavConfig } from '@/lib/nav-config-types'
 
 const SINGLETON_ID = 'singleton'
 
@@ -16,6 +20,7 @@ export interface SiteSettingsData {
   socialTikTok: string | null
   whatsappNotificationsEnabled: boolean
   whatsappNotificationNumber: string | null
+  navConfig: NavConfig
 }
 
 const DEFAULTS: SiteSettingsData = {
@@ -32,6 +37,7 @@ const DEFAULTS: SiteSettingsData = {
   socialTikTok: null,
   whatsappNotificationsEnabled: false,
   whatsappNotificationNumber: null,
+  navConfig: DEFAULT_NAV_CONFIG,
 }
 
 /**
@@ -56,6 +62,7 @@ export async function getSiteSettings(): Promise<SiteSettingsData> {
       socialTikTok: row.socialTikTok,
       whatsappNotificationsEnabled: row.whatsappNotificationsEnabled,
       whatsappNotificationNumber: row.whatsappNotificationNumber,
+      navConfig: parseNavConfig(row.navConfig),
     }
   } catch {
     return DEFAULTS
@@ -76,6 +83,9 @@ export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
   if (data.siteName !== undefined) update.siteName = data.siteName
   if (data.whatsappNotificationsEnabled !== undefined) {
     update.whatsappNotificationsEnabled = data.whatsappNotificationsEnabled
+  }
+  if (data.navConfig !== undefined) {
+    update.navConfig = data.navConfig as unknown as Prisma.InputJsonValue
   }
   for (const f of fields) {
     if (data[f] !== undefined) update[f] = data[f] ?? null
@@ -98,6 +108,7 @@ export async function upsertSiteSettings(data: Partial<SiteSettingsData>) {
       socialTikTok: data.socialTikTok ?? null,
       whatsappNotificationsEnabled: data.whatsappNotificationsEnabled ?? false,
       whatsappNotificationNumber: data.whatsappNotificationNumber ?? null,
+      navConfig: (data.navConfig ?? DEFAULT_NAV_CONFIG) as unknown as Prisma.InputJsonValue,
     },
     update,
   })

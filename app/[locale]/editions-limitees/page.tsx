@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ProductCard } from '@/components/product/ProductCard'
 import { Button } from '@/components/ui/Button'
@@ -52,6 +53,7 @@ async function getLimitedProducts(): Promise<ProductCardData[]> {
 export default async function EditionsLimiteesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("editionsLimitees", locale)
   const t = await getTranslations()
 
   const products = await getLimitedProducts()

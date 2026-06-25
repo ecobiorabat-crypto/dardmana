@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import { pickLocale } from '@/lib/utils/product'
@@ -48,6 +49,7 @@ export default async function LivreDorPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("livreDor", locale)
   const t = await getTranslations('Guestbook')
 
   const [stats, approvedCount, videoCount, categoriesRaw, productsRaw, entriesRaw, entriesTotal] =

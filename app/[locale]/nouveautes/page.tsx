@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ProductGrid } from '@/components/shop/ProductGrid'
 import { Button } from '@/components/ui/Button'
@@ -68,6 +69,7 @@ export default async function NouveautesPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("nouveautes", locale)
   const t = await getTranslations()
 
   const products = await getNewProducts()

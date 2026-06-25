@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { localizedHref, useCurrentLocale } from './nav'
+import { DEFAULT_NAV_CONFIG, isLinkEnabled, type NavConfig } from '@/lib/nav-config-types'
 import { cn } from '@/lib/utils/cn'
 
 interface FooterColumn {
@@ -73,10 +74,11 @@ export interface FooterProps {
   phone?: string | null
   email?: string | null
   address?: string | null
+  navConfig?: NavConfig
   social?: { instagram?: string | null; facebook?: string | null; tiktok?: string | null }
 }
 
-export function Footer({ siteName, phone, email, address, social }: FooterProps = {}) {
+export function Footer({ siteName, phone, email, address, navConfig = DEFAULT_NAV_CONFIG, social }: FooterProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const year = new Date().getFullYear()
@@ -136,16 +138,18 @@ export function Footer({ siteName, phone, email, address, social }: FooterProps 
                 {t(`Footer.${col.titleKey}`)}
               </h3>
               <ul className="mt-5 space-y-3">
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={localizedHref(locale, link.href)}
-                      className="text-sm text-[var(--creme)]/75 transition-colors hover:text-[var(--or-royal)]"
-                    >
-                      {t(`Footer.${link.labelKey}`)}
-                    </Link>
-                  </li>
-                ))}
+                {col.links
+                  .filter((link) => isLinkEnabled(navConfig, link.href))
+                  .map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={localizedHref(locale, link.href)}
+                        className="text-sm text-[var(--creme)]/75 transition-colors hover:text-[var(--or-royal)]"
+                      >
+                        {t(`Footer.${link.labelKey}`)}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           ))}

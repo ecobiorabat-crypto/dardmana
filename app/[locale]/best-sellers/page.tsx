@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import Link from 'next/link'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ProductGrid } from '@/components/shop/ProductGrid'
@@ -72,6 +73,7 @@ export default async function BestSellersPage({
   const { locale } = await params
   const sp = await searchParams
   setRequestLocale(locale)
+  await ensurePageEnabled("bestSellers", locale)
   const t = await getTranslations('BestSellers')
 
   const activeCategory = typeof sp.category === 'string' ? sp.category : undefined

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ensurePageEnabled } from "@/lib/nav-config"
 import Image from 'next/image'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Reveal } from '@/components/ui/Reveal'
@@ -57,6 +58,7 @@ export default async function CollectionsPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  await ensurePageEnabled("collections", locale)
   const t = await getTranslations()
 
   const categories = await getCategories()

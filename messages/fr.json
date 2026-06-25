@@ -36,7 +36,8 @@
     "networkError": "Erreur réseau, réessayez.",
     "offered": "Offerte",
     "breadcrumb": "Fil d'Ariane",
-    "closeNotification": "Fermer la notification"
+    "closeNotification": "Fermer la notification",
+    "pageUnavailable": "Cette page n’est pas disponible pour le moment."
   },
   "Nav": {
     "home": "Accueil",

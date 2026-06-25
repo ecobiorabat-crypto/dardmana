@@ -36,7 +36,8 @@
     "networkError": "Network error, please try again.",
     "offered": "Free",
     "breadcrumb": "Breadcrumb",
-    "closeNotification": "Close notification"
+    "closeNotification": "Close notification",
+    "pageUnavailable": "This page is currently unavailable."
   },
   "Nav": {
     "home": "Home",

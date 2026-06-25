@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { localizedHref, useCurrentLocale } from './nav'
 import { useCategories, categoryName } from './useCategories'
+import { DEFAULT_NAV_CONFIG, isLinkEnabled, type NavConfig } from '@/lib/nav-config-types'
 import { cn } from '@/lib/utils/cn'
 
 /**
@@ -16,7 +17,15 @@ import { cn } from '@/lib/utils/cn'
  * échappe ainsi à TOUS les stacking contexts parents (header, filter, transform).
  * Fermeture : scroll, resize, clic extérieur, Échap.
  */
-export function ProductsMegaMenu({ label, href }: { label: string; href: string }) {
+export function ProductsMegaMenu({
+  label,
+  href,
+  navConfig = DEFAULT_NAV_CONFIG,
+}: {
+  label: string
+  href: string
+  navConfig?: NavConfig
+}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const categories = useCategories()
@@ -139,20 +148,24 @@ export function ProductsMegaMenu({ label, href }: { label: string; href: string 
               )}
 
               <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-[var(--bordure)] pt-3">
-                <Link
-                  href={localizedHref(locale, '/best-sellers')}
-                  onClick={closeNow}
-                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--or-royal)] transition-colors hover:text-[var(--vert-fonce)]"
-                >
-                  ⭐ {t('BestSellers.metaTitle')}
-                </Link>
-                <Link
-                  href={localizedHref(locale, '/editions-limitees')}
-                  onClick={closeNow}
-                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--erreur)] transition-colors hover:text-[var(--vert-fonce)]"
-                >
-                  🔥 {t('LimitedEditions.metaTitle')}
-                </Link>
+                {isLinkEnabled(navConfig, '/best-sellers') && (
+                  <Link
+                    href={localizedHref(locale, '/best-sellers')}
+                    onClick={closeNow}
+                    className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--or-royal)] transition-colors hover:text-[var(--vert-fonce)]"
+                  >
+                    ⭐ {t('BestSellers.metaTitle')}
+                  </Link>
+                )}
+                {isLinkEnabled(navConfig, '/editions-limitees') && (
+                  <Link
+                    href={localizedHref(locale, '/editions-limitees')}
+                    onClick={closeNow}
+                    className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--erreur)] transition-colors hover:text-[var(--vert-fonce)]"
+                  >
+                    🔥 {t('LimitedEditions.metaTitle')}
+                  </Link>
+                )}
                 <Link
                   href={localizedHref(locale, '/catalogue')}
                   onClick={closeNow}

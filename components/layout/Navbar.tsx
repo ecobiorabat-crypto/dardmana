@@ -8,6 +8,7 @@ import { useWishlistStore } from '@/store/wishlist'
 import { useUiStore } from '@/store/ui'
 import { NAV_LINKS, localizedHref, useCurrentLocale } from './nav'
 import { ProductsMegaMenu } from './ProductsMegaMenu'
+import { DEFAULT_NAV_CONFIG, isLinkEnabled, type NavConfig } from '@/lib/nav-config-types'
 import { useHydrated, useScrolled } from './hooks'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
@@ -74,9 +75,10 @@ export interface NavbarProps {
   /** Logo géré via l'admin (SiteSettings). Si absent, repli sur le texte de marque. */
   logoUrl?: string | null
   siteName?: string
+  navConfig?: NavConfig
 }
 
-export function Navbar({ siteName }: NavbarProps = {}) {
+export function Navbar({ siteName, navConfig = DEFAULT_NAV_CONFIG }: NavbarProps = {}) {
   const locale = useCurrentLocale()
   const t = useTranslations()
   const brand = siteName || t('Common.brand')
@@ -142,9 +144,9 @@ export function Navbar({ siteName }: NavbarProps = {}) {
 
           {/* --- Liens centre (desktop) --- */}
           <ul className="hidden items-center gap-8 md:flex">
-            {NAV_LINKS.map((link) =>
+            {NAV_LINKS.filter((link) => isLinkEnabled(navConfig, link.href)).map((link) =>
               link.megaMenu ? (
-                <ProductsMegaMenu key={link.href} label={t(`Nav.${link.key}`)} href={link.href} />
+                <ProductsMegaMenu key={link.href} label={t(`Nav.${link.key}`)} href={link.href} navConfig={navConfig} />
               ) : (
                 <li key={link.href}>
                   <Link
@@ -203,7 +205,7 @@ export function Navbar({ siteName }: NavbarProps = {}) {
         </nav>
       </header>
 
-      <MobileMenu />
+      <MobileMenu navConfig={navConfig} />
       <CartDrawer />
       <SearchModal />
     </>

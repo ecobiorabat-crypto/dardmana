@@ -491,6 +491,9 @@ model SiteSettings {
   whatsappNotificationsEnabled Boolean @default(false)
   whatsappNotificationNumber   String?
 
+  // Activation/désactivation des pages & liens de navigation (JSON de booléens).
+  navConfig Json @default("{}")
+
   updatedAt   DateTime @updatedAt @default(now())
 }
 

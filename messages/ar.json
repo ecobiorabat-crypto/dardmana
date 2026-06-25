@@ -36,7 +36,8 @@
     "networkError": "خطأ في الشبكة، أعد المحاولة.",
     "offered": "مجاني",
     "breadcrumb": "مسار التنقل",
-    "closeNotification": "إغلاق الإشعار"
+    "closeNotification": "إغلاق الإشعار",
+    "pageUnavailable": "هذه الصفحة غير متاحة حالياً."
   },
   "Nav": {
     "home": "الرئيسية",

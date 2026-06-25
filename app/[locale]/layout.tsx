@@ -12,6 +12,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { PageTransition } from '@/components/layout/PageTransition'
 import { CursorEffect } from '@/components/layout/CursorEffect'
+import { UnavailableNotice } from '@/components/layout/UnavailableNotice'
 import { Toast } from '@/components/ui/Toast'
 import { MetaPixel } from '@/components/analytics/MetaPixel'
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
@@ -121,7 +122,7 @@ export default async function LocaleLayout({
               cookieKey={limitedMsg ? `dd-limited-${limitedCount}` : 'dd-announcement'}
             />
           )}
-          <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
+          <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} navConfig={settings.navConfig} />
         </div>
 
         <main className="flex flex-1 flex-col">
@@ -134,6 +135,7 @@ export default async function LocaleLayout({
           phone={settings.phone}
           email={settings.email}
           address={settings.address}
+          navConfig={settings.navConfig}
           social={{
             instagram: settings.socialInstagram,
             facebook: settings.socialFacebook,
@@ -141,6 +143,7 @@ export default async function LocaleLayout({
           }}
         />
         <CursorEffect />
+        <UnavailableNotice />
         <Toast />
         <MetaPixel />
         <GoogleAnalytics />
