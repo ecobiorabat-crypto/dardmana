@@ -2,7 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { orderOrchestrator } from '@/lib/order-orchestrator'
-import type { OrderStatus } from '@prisma/client'
+import { guardAdminApi } from '@/lib/auth/admin-api-guard'
+import type { OrderStatus, Prisma } from '@prisma/client'
 
 async function verifyAdmin(request: NextRequest): Promise<{ ok: boolean; email?: string }> {
   void request
@@ -90,13 +91,30 @@ export async function PATCH(
   }
 }
 
+/**
+ * Suppression DÉFINITIVE d'une commande (irréversible).
+ * - Session admin + permission orders.update.
+ * - Réservé à SUPER_ADMIN et ADMIN (pas MANAGER/SUPPORT/STOCK).
+ * - Supprime en cascade : OrderItem, OrderStatusHistory, Payment, TrackingEvent,
+ *   NotificationLog liés.
+ * - Restaure le stock si la commande n'est ni CANCELLED ni REFUNDED.
+ * - Journalise la suppression dans AuditLog (email admin).
+ */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdmin(request)
-    if (!admin.ok) return NextResponse.json({ error: 'Accès admin requis' }, { status: 403 })
+    const guard = await guardAdminApi(request, 'orders.update')
+    if (!guard.ok) return guard.response
+
+    const { role, adminEmail } = guard.session
+    if (role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Suppression réservée aux administrateurs (SUPER_ADMIN, ADMIN)' },
+        { status: 403 },
+      )
+    }
 
     const { id } = await params
 
@@ -107,28 +125,35 @@ export async function DELETE(
 
     if (!order) return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
 
-    if (['DELIVERED', 'REFUNDED'].includes(order.orderStatus)) {
-      return NextResponse.json({ error: 'Impossible d\'annuler une commande livrée ou remboursée' }, { status: 400 })
+    // Restaure le stock sauf si déjà annulée/remboursée (stock déjà rétabli).
+    if (order.orderStatus !== 'CANCELLED' && order.orderStatus !== 'REFUNDED') {
+      await orderOrchestrator.rollbackStock(order.orderItems)
     }
 
-    // Rollback stock
-    await orderOrchestrator.rollbackStock(order.orderItems)
+    // Suppression en cascade explicite (NotificationLog.orderId est optionnel et
+    // ne cascade pas automatiquement à la suppression de la commande).
+    await prisma.$transaction([
+      prisma.notificationLog.deleteMany({ where: { orderId: id } }),
+      prisma.trackingEvent.deleteMany({ where: { orderId: id } }),
+      prisma.orderStatusHistory.deleteMany({ where: { orderId: id } }),
+      prisma.payment.deleteMany({ where: { orderId: id } }),
+      prisma.orderItem.deleteMany({ where: { orderId: id } }),
+      prisma.order.delete({ where: { id } }),
+    ])
 
-    await prisma.order.update({
-      where: { id },
-      data: { orderStatus: 'CANCELLED' },
-    })
-
-    await prisma.orderStatusHistory.create({
+    // Journal d'audit (snapshot de la commande supprimée).
+    await prisma.auditLog.create({
       data: {
-        orderId: id,
-        status: 'CANCELLED',
-        changedBy: admin.email ?? 'admin',
-        note: 'Annulée par admin',
+        adminEmail,
+        action: 'order.delete',
+        resourceType: 'Order',
+        resourceId: id,
+        before: JSON.parse(JSON.stringify(order)) as Prisma.InputJsonValue,
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0] ?? null,
       },
     })
 
-    return NextResponse.json({ success: true, message: 'Commande annulée et stock rétabli' })
+    return NextResponse.json({ success: true, message: 'Commande supprimée définitivement' })
   } catch (error) {
     console.error('[DELETE /api/admin/orders/[id]]', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

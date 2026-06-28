@@ -11,9 +11,17 @@ export interface CartItem {
   quantity: number
 }
 
+/** Code promo appliqué dans le panier, transmis ensuite au checkout. */
+export interface AppliedPromo {
+  code: string
+  discount: number
+  message: string
+}
+
 interface CartState {
   items: CartItem[]
   isOpen: boolean
+  appliedPromo: AppliedPromo | null
 
   addItem: (item: CartItem) => void
   removeItem: (productId: string, variantId?: string) => void
@@ -22,6 +30,9 @@ interface CartState {
   toggleCart: () => void
   openCart: () => void
   closeCart: () => void
+
+  setPromo: (promo: AppliedPromo) => void
+  clearPromo: () => void
 
   getItemById: (productId: string, variantId?: string) => CartItem | undefined
   getTotalMad: () => number
@@ -37,6 +48,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      appliedPromo: null,
 
       addItem: (incoming) => {
         trackAddToCart(
@@ -83,10 +95,13 @@ export const useCartStore = create<CartState>()(
         }))
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], appliedPromo: null }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
+
+      setPromo: (promo) => set({ appliedPromo: promo }),
+      clearPromo: () => set({ appliedPromo: null }),
 
       getItemById: (productId, variantId) => {
         const key = itemKey(productId, variantId)
@@ -102,7 +117,7 @@ export const useCartStore = create<CartState>()(
     {
       name: 'dar-dmana-cart',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, appliedPromo: state.appliedPromo }),
     }
   )
 )

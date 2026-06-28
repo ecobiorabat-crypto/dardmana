@@ -7,6 +7,7 @@ import { StatusBadge, PaymentBadge } from '@/components/admin/ui'
 import { formatMad } from '@/lib/utils/price'
 import { trackingUrl } from '@/lib/utils/order-status'
 import { updateOrderAction, cancelOrderAction, refundOrderAction } from '@/app/admin/(panel)/actions'
+import { DeleteOrderButton } from '@/components/admin/commandes/DeleteOrderButton'
 
 interface Address {
   fullName?: string
@@ -70,7 +71,7 @@ function formatAddress(a: Address): string {
   return [a.addressLine1, a.addressLine2, a.postalCode, a.city, a.region, a.country].filter(Boolean).join(', ')
 }
 
-export function OrderDetailAdmin({ order }: { order: AdminOrder }) {
+export function OrderDetailAdmin({ order, canDelete = false }: { order: AdminOrder; canDelete?: boolean }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -328,6 +329,19 @@ export function OrderDetailAdmin({ order }: { order: AdminOrder }) {
               <button type="button" onClick={() => run(() => refundOrderAction(order.id))} disabled={pending} className="border border-[var(--bordure)] px-4 py-2 text-xs uppercase tracking-[0.1em] text-[var(--texte)] disabled:opacity-50">
                 Rembourser
               </button>
+              {canDelete && (
+                <div className="mt-1 border-t border-[var(--erreur)]/30 pt-3">
+                  <DeleteOrderButton
+                    orderId={order.id}
+                    orderNumber={order.orderNumber}
+                    variant="button"
+                    redirectTo="/admin/commandes"
+                  />
+                  <p className="mt-2 text-xs text-[var(--texte-doux)]">
+                    Supprime la commande et toutes ses données liées. Irréversible.
+                  </p>
+                </div>
+              )}
             </div>
           </section>
         </div>

@@ -94,6 +94,7 @@ export function CheckoutWizard() {
 
   const items = useCartStore((s) => s.items)
   const clearCart = useCartStore((s) => s.clearCart)
+  const appliedPromo = useCartStore((s) => s.appliedPromo)
 
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormState>(EMPTY)
@@ -113,7 +114,8 @@ export function CheckoutWizard() {
   const selectedShipping: ShippingOption | undefined =
     shippingOptions.find((s) => s.id === shippingId) ?? shippingOptions[0]
   const shippingCost = selectedShipping?.isFree ? 0 : selectedShipping?.priceMad ?? 0
-  const total = subtotal + shippingCost
+  const discount = appliedPromo?.discount ?? 0
+  const total = Math.max(0, subtotal - discount) + shippingCost
 
   // Événement analytics « début de commande » — une fois, dès que le panier est connu.
   const beginCheckoutFired = useRef(false)
@@ -202,6 +204,7 @@ export function CheckoutWizard() {
         addressLine2: form.addressLine2 || undefined,
         city: form.city,
         postalCode: form.postalCode || undefined,
+        promoCode: appliedPromo?.code,
         items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, variantId: i.variantId })),
       }),
     })
@@ -229,6 +232,7 @@ export function CheckoutWizard() {
           country: form.country,
         },
         paymentMethod: method,
+        promoCode: appliedPromo?.code,
         items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, variantId: i.variantId })),
       }),
     })
@@ -505,6 +509,14 @@ export function CheckoutWizard() {
                         <p className="text-xs uppercase tracking-[0.12em] text-[var(--texte-doux)]">{t('Checkout.stepPayment')}</p>
                         <p className="mt-1 text-[var(--texte)]">{paymentLabel(payment)}</p>
                       </div>
+                      {appliedPromo && (
+                        <div className="border-t border-[var(--bordure)] pt-3">
+                          <p className="text-xs uppercase tracking-[0.12em] text-[var(--texte-doux)]">{t('Cart.promoCode')}</p>
+                          <p className="mt-1 text-[var(--vert-moyen)]">
+                            {appliedPromo.code} · −{formatMad(appliedPromo.discount)}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {error && <p className="text-sm text-[var(--erreur)]">{error}</p>}
@@ -530,6 +542,7 @@ export function CheckoutWizard() {
           subtotal={subtotal}
           shippingCost={shippingCost}
           total={total}
+          discount={discount}
         />
       </aside>
     </div>

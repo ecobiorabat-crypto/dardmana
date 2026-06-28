@@ -192,6 +192,7 @@
     "promoCode": "Code promo",
     "promoPlaceholder": "Entrez votre code",
     "apply": "Appliquer",
+    "removePromo": "Retirer",
     "promoApplied": "Code promo appliqué",
     "promoInvalid": "Code promo invalide",
     "checkout": "Commander",

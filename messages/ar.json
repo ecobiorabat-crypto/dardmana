@@ -192,6 +192,7 @@
     "promoCode": "رمز الخصم",
     "promoPlaceholder": "أدخل الرمز",
     "apply": "تطبيق",
+    "removePromo": "إزالة",
     "promoApplied": "تم تطبيق رمز الخصم",
     "promoInvalid": "رمز خصم غير صالح",
     "checkout": "إتمام الطلب",

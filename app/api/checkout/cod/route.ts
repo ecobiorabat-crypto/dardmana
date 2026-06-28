@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { CODFormSchema } from '@/lib/validations/order'
 import { orderOrchestrator } from '@/lib/order-orchestrator'
-import { calculateShipping } from '@/lib/utils/price'
+import { calculateShipping, applyPromoCode } from '@/lib/utils/price'
 import type { Prisma } from '@prisma/client'
 
 function generateOrderNumber(): string {
@@ -53,21 +53,38 @@ export async function POST(request: NextRequest) {
       return sum + Number(p?.priceMad ?? 0) * item.quantity
     }, 0)
 
+    // Code promo (transmis depuis le panier) — réduction recalculée côté serveur.
+    let discountMad = 0
+    let shippingIsFree = false
+    const promoCode = typeof body.promoCode === 'string' ? body.promoCode.trim() : undefined
+    if (promoCode) {
+      const promo = await prisma.promoCode.findUnique({ where: { code: promoCode.toUpperCase() } })
+      if (promo) {
+        const result = applyPromoCode(subtotalMad, promo)
+        if (!result.error) {
+          discountMad = result.discount
+          if (promo.type === 'FREE_SHIPPING') shippingIsFree = true
+        }
+      }
+    }
+
     const shippingMethod = await prisma.shippingMethod.findFirst({
       where: { countries: { has: 'MA' }, isActive: true },
       orderBy: { sortOrder: 'asc' },
     })
 
-    const shippingCostMad = shippingMethod
-      ? calculateShipping('MA', subtotalMad, {
-          id: shippingMethod.id,
-          priceMad: Number(shippingMethod.priceMad),
-          priceEur: null,
-          freeThresholdMad: shippingMethod.freeThresholdMad ? Number(shippingMethod.freeThresholdMad) : null,
-        })
-      : 35
+    const shippingCostMad = shippingIsFree
+      ? 0
+      : shippingMethod
+        ? calculateShipping('MA', subtotalMad, {
+            id: shippingMethod.id,
+            priceMad: Number(shippingMethod.priceMad),
+            priceEur: null,
+            freeThresholdMad: shippingMethod.freeThresholdMad ? Number(shippingMethod.freeThresholdMad) : null,
+          })
+        : 35
 
-    const totalMad = subtotalMad + shippingCostMad
+    const totalMad = Math.max(0, subtotalMad - discountMad) + shippingCostMad
 
     const itemsSnapshot = items.map((item) => {
       const p = products.find((pr) => pr.id === item.productId)!
@@ -115,17 +132,26 @@ export async function POST(request: NextRequest) {
         items: itemsSnapshot as unknown as Prisma.InputJsonValue,
         subtotalMad,
         shippingCostMad,
-        discountMad: 0,
+        discountMad,
         totalMad,
         currency: 'MAD',
         paymentMethod: 'COD',
         paymentStatus: 'PENDING',
         orderStatus: 'NEW',
         source: 'SHOP',
+        promoCode: promoCode ? promoCode.toUpperCase() : null,
         notes: data.notes ?? null,
         orderItems: { createMany: { data: orderItemsData } },
       },
     })
+
+    // Incrémente l'usage du code promo si réduction appliquée.
+    if (promoCode && discountMad > 0) {
+      await prisma.promoCode.updateMany({
+        where: { code: promoCode.toUpperCase() },
+        data: { currentUses: { increment: 1 } },
+      })
+    }
 
     // Trigger orchestrator for COD (no payment needed, go straight to processing)
     orderOrchestrator.processOrder(order.id).catch((err) => {

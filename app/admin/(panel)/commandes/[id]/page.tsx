@@ -8,7 +8,8 @@ import { AdminParamToast } from '@/components/admin/AdminParamToast'
 export const dynamic = 'force-dynamic'
 
 export default async function CommandeDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePermission('orders.view')
+  const session = await requirePermission('orders.view')
+  const canDelete = session.role === 'SUPER_ADMIN' || session.role === 'ADMIN'
   const { id } = await params
 
   const order = await prisma.order.findUnique({
@@ -27,7 +28,7 @@ export default async function CommandeDetailPage({ params }: { params: Promise<{
       <Suspense fallback={null}>
         <AdminParamToast param="created" message="Commande créée avec succès" />
       </Suspense>
-      <OrderDetailAdmin order={JSON.parse(JSON.stringify(order)) as AdminOrder} />
+      <OrderDetailAdmin order={JSON.parse(JSON.stringify(order)) as AdminOrder} canDelete={canDelete} />
     </>
   )
 }

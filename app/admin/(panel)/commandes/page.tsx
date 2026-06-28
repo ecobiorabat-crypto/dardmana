@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { requirePermission } from '@/lib/auth/admin-guard'
 import { PageHeader, AdminCard, StatusBadge, PaymentBadge, EmptyState } from '@/components/admin/ui'
 import { OrdersFilters } from '@/components/admin/commandes/OrdersFilters'
+import { DeleteOrderButton } from '@/components/admin/commandes/DeleteOrderButton'
 import { formatMad } from '@/lib/utils/price'
 import type { Prisma, OrderStatus, OrderSource, PaymentMethod } from '@prisma/client'
 
@@ -19,7 +20,8 @@ function str(sp: SP, key: string): string | undefined {
 }
 
 export default async function CommandesPage({ searchParams }: { searchParams: Promise<SP> }) {
-  await requirePermission('orders.view')
+  const session = await requirePermission('orders.view')
+  const canDelete = session.role === 'SUPER_ADMIN' || session.role === 'ADMIN'
   const sp = await searchParams
 
   const page = Math.max(1, Number(str(sp, 'page') ?? 1))
@@ -113,6 +115,7 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
                   <th className="px-5 py-3 font-medium">Statut</th>
                   <th className="px-5 py-3 font-medium">Source</th>
                   <th className="px-5 py-3 font-medium">Date</th>
+                  {canDelete && <th className="px-5 py-3 font-medium text-right">Action</th>}
                 </tr>
               </thead>
               <tbody>
@@ -132,6 +135,11 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
                     <td className="px-5 py-3"><StatusBadge status={o.orderStatus} /></td>
                     <td className="px-5 py-3 text-xs text-[var(--texte-doux)]">{SOURCE_LABELS[o.source] ?? o.source}</td>
                     <td className="px-5 py-3 text-[var(--texte-doux)]">{new Date(o.createdAt).toLocaleDateString('fr-FR')}</td>
+                    {canDelete && (
+                      <td className="px-5 py-3 text-right">
+                        <DeleteOrderButton orderId={o.id} orderNumber={o.orderNumber} variant="icon" />
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

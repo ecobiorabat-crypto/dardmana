@@ -43,12 +43,14 @@ export default function CartPage() {
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
   const addItem = useCartStore((s) => s.addItem)
+  const appliedPromo = useCartStore((s) => s.appliedPromo)
+  const setPromo = useCartStore((s) => s.setPromo)
+  const clearPromo = useCartStore((s) => s.clearPromo)
   const showToast = useUiStore((s) => s.showToast)
 
   const [suggested, setSuggested] = useState<ProductCardData[]>([])
   const [complementary, setComplementary] = useState<ProductCardData[]>([])
   const [promoCode, setPromoCode] = useState('')
-  const [promo, setPromo] = useState<{ discount: number; message: string } | null>(null)
   const [promoError, setPromoError] = useState<string | null>(null)
   const [promoLoading, setPromoLoading] = useState(false)
 
@@ -130,7 +132,7 @@ export default function CartPage() {
   }
 
   const subtotal = items.reduce((sum, i) => sum + i.priceMad * i.quantity, 0)
-  const discount = promo?.discount ?? 0
+  const discount = appliedPromo?.discount ?? 0
   const afterDiscount = Math.max(0, subtotal - discount)
   const shipping = getShippingMethods('MA', afterDiscount)[0]
   const shippingCost = shipping?.priceMad ?? 0
@@ -150,9 +152,10 @@ export default function CartPage() {
       })
       const data = await res.json()
       if (data.valid) {
-        setPromo({ discount: data.discount ?? 0, message: data.message })
+        setPromo({ code: promoCode.trim().toUpperCase(), discount: data.discount ?? 0, message: data.message })
+        setPromoCode('')
       } else {
-        setPromo(null)
+        clearPromo()
         setPromoError(data.message ?? t('Cart.promoInvalid'))
       }
     } catch {
@@ -160,6 +163,12 @@ export default function CartPage() {
     } finally {
       setPromoLoading(false)
     }
+  }
+
+  const removePromo = () => {
+    clearPromo()
+    setPromoError(null)
+    setPromoCode('')
   }
 
   if (hydrated && items.length === 0) {
@@ -266,19 +275,39 @@ export default function CartPage() {
 
             {/* Promo */}
             <div className="mt-5">
-              <div className="flex gap-2">
-                <Input
-                  label={t('Cart.promoCode')}
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  containerClassName="flex-1"
-                />
-                <Button variant="outline" size="md" loading={promoLoading} onClick={applyPromo}>
-                  {t('Cart.apply')}
-                </Button>
-              </div>
-              {promoError && <p className="mt-1.5 text-xs text-[var(--erreur)]">{promoError}</p>}
-              {promo && <p className="mt-1.5 text-xs text-[var(--vert-moyen)]">{promo.message}</p>}
+              {hydrated && appliedPromo ? (
+                <div className="flex items-center justify-between gap-3 border border-[var(--vert-moyen)]/40 bg-[var(--vert-moyen)]/5 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-[var(--vert-moyen)]">
+                      {appliedPromo.code} · −{formatMad(appliedPromo.discount)}
+                    </p>
+                    <p className="truncate text-xs text-[var(--texte-doux)]">{appliedPromo.message}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removePromo}
+                    className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-[var(--erreur)] hover:underline"
+                  >
+                    {t('Cart.removePromo')}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-2">
+                    <Input
+                      label={t('Cart.promoCode')}
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                      containerClassName="flex-1"
+                    />
+                    <Button variant="outline" size="md" loading={promoLoading} onClick={applyPromo}>
+                      {t('Cart.apply')}
+                    </Button>
+                  </div>
+                  {promoError && <p className="mt-1.5 text-xs text-[var(--erreur)]">{promoError}</p>}
+                </>
+              )}
             </div>
 
             <dl className="mt-6 space-y-3 border-t border-[var(--bordure)] pt-5 text-sm">
