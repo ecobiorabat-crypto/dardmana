@@ -19,7 +19,8 @@ export function LoginForm() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  // Erreur OAuth renvoyée par le callback (?error=…) affichée dès le chargement.
+  const [error, setError] = useState<string | null>(searchParams.get('error'))
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,12 +39,21 @@ export function LoginForm() {
 
   const handleGoogle = async () => {
     setError(null)
+    if (typeof window === 'undefined') return
     try {
       const supabase = createClient()
-      await supabase.auth.signInWithOAuth({
+      // Redirige vers notre route callback (échange du code PKCE), en conservant
+      // la destination d'origine dans ?next=.
+      const callbackUrl =
+        `${window.location.origin}${localizedHref(locale, '/auth/callback')}` +
+        `?next=${encodeURIComponent(redirect)}`
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: typeof window !== 'undefined' ? `${window.location.origin}${redirect}` : undefined },
+        options: { redirectTo: callbackUrl },
       })
+      // signInWithOAuth ne lève pas : en cas d'échec (provider non activé,
+      // réseau…) il renvoie { error } sans rediriger. On le remonte à l'UI.
+      if (error) setError(error.message || t('Auth.googleUnavailable'))
     } catch {
       setError(t('Auth.googleUnavailable'))
     }
