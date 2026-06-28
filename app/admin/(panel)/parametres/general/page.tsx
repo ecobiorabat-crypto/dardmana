@@ -3,7 +3,6 @@ import { getSiteSettings } from '@/lib/settings'
 import { PageHeader } from '@/components/admin/ui'
 import { BrandingForm } from '@/components/admin/parametres/BrandingForm'
 import { ContactSocialForm } from '@/components/admin/parametres/ContactSocialForm'
-import { WhatsappNotifyForm } from '@/components/admin/parametres/WhatsappNotifyForm'
 import { NavConfigForm } from '@/components/admin/parametres/NavConfigForm'
 
 export const dynamic = 'force-dynamic'
@@ -26,14 +25,6 @@ export default async function GeneralSettingsPage() {
           subtitle="Téléphone, WhatsApp, e-mail et liens sociaux (Footer & page Contact)"
         />
         <ContactSocialForm initial={settings} />
-      </section>
-
-      <section>
-        <PageHeader
-          title="Notifications WhatsApp"
-          subtitle="Recevoir une alerte WhatsApp à chaque nouvelle commande (via CallMeBot)"
-        />
-        <WhatsappNotifyForm initial={settings} />
       </section>
 
       <section>

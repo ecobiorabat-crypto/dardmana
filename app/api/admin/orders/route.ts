@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifyAdminSession } from '@/lib/auth/admin'
 import { hasPermission } from '@/lib/auth/permissions'
 import { normalizePhone } from '@/lib/utils/phone'
-import { notifyAdminWhatsApp } from '@/lib/notify-whatsapp'
+import { notifyAdminEmail } from '@/lib/notify-whatsapp'
 import type { Prisma, OrderStatus, PaymentMethod, PaymentStatus, OrderSource } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
@@ -272,8 +272,9 @@ export async function POST(request: NextRequest) {
       return { id: order.id, orderNumber }
     })
 
-    // Notification WhatsApp admin (CallMeBot) — non bloquant.
-    await notifyAdminWhatsApp({
+    // Notification email admin — non bloquant.
+    await notifyAdminEmail({
+      orderId: result.id,
       orderNumber: result.orderNumber,
       customerName: data.customer.name,
       customerPhone: phone,
@@ -281,7 +282,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: data.paymentMethod,
       source: data.source,
       orderItems: itemsSnapshot.map((i) => ({ productName: i.name, quantity: i.quantity })),
-    }).catch((err) => console.error('[POST /api/admin/orders] Notif WhatsApp échouée (non bloquant):', err))
+    }).catch((err) => console.error('[POST /api/admin/orders] Notif email échouée (non bloquant):', err))
 
     return NextResponse.json({ success: true, orderId: result.id }, { status: 201 })
   } catch (error) {
