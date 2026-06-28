@@ -27,6 +27,15 @@ const StripePayment = dynamic(
     loading: () => <PaymentLoading />,
   },
 )
+
+// PayPal (commandes internationales) : chargé à la demande, côté client uniquement.
+const PayPalPayment = dynamic(
+  () => import('@/components/checkout/PayPalPayment').then((m) => m.PayPalPayment),
+  {
+    ssr: false,
+    loading: () => <PaymentLoading />,
+  },
+)
 import { getShippingMethods, getPaymentMethods, type ShippingOption } from '@/lib/utils/shipping'
 import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
 import { cn } from '@/lib/utils/cn'
@@ -41,7 +50,7 @@ const PAYMENT_LABEL_KEYS: Record<string, string> = {
 
 // Passerelles pas encore branchées : affichées mais non sélectionnables
 // (évite de créer des commandes non payées). À retirer dès l'intégration.
-const COMING_SOON = new Set(['CMI', 'PAYPAL'])
+const COMING_SOON = new Set(['CMI'])
 
 const STEP_KEYS = [
   'Checkout.stepAddress',
@@ -93,6 +102,7 @@ export function CheckoutWizard() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [stripe, setStripe] = useState<{ clientSecret: string; orderNumber: string } | null>(null)
+  const [paypal, setPaypal] = useState<{ orderId: string; orderNumber: string } | null>(null)
 
   const subtotal = items.reduce((sum, i) => sum + i.priceMad * i.quantity, 0)
   const shippingOptions = useMemo(
@@ -249,8 +259,12 @@ export function CheckoutWizard() {
         const data = await res.json()
         if (!res.ok || !data.clientSecret) throw new Error(data.error ?? t('Checkout.paymentUnavailable'))
         setStripe({ clientSecret: data.clientSecret, orderNumber })
+      } else if (payment === 'PAYPAL') {
+        // Crée la commande puis affiche le bouton PayPal (order + capture côté API).
+        const { orderId, orderNumber } = await createOrder('PAYPAL')
+        setPaypal({ orderId, orderNumber })
       } else {
-        // CMI / PAYPAL : création directe (intégration passerelle à finaliser)
+        // CMI : création directe (intégration passerelle à finaliser)
         const { orderNumber } = await createOrder(payment)
         persistAndGoConfirmation(orderNumber)
       }
@@ -261,7 +275,7 @@ export function CheckoutWizard() {
     }
   }
 
-  if (hydrated && items.length === 0 && !stripe) {
+  if (hydrated && items.length === 0 && !stripe && !paypal) {
     return (
       <div className="flex flex-col items-center gap-5 py-20 text-center">
         <p className="font-titre text-2xl text-[var(--vert-fonce)]">{t('Cart.empty')}</p>
@@ -457,6 +471,16 @@ export function CheckoutWizard() {
                           : '/'
                       }
                       onSuccess={() => persistAndGoConfirmation(stripe.orderNumber)}
+                    />
+                  </div>
+                ) : paypal ? (
+                  <div className="border border-[var(--bordure)] p-5">
+                    <p className="mb-4 text-sm text-[var(--texte-doux)]">
+                      {t('Checkout.paypalInstructions')}
+                    </p>
+                    <PayPalPayment
+                      orderId={paypal.orderId}
+                      onSuccess={() => persistAndGoConfirmation(paypal.orderNumber)}
                     />
                   </div>
                 ) : (

@@ -254,6 +254,7 @@
     "shippingTitle": "Mode de livraison",
     "reviewTitle": "Vérification",
     "stripeInstructions": "Renseignez vos informations de carte pour finaliser le paiement sécurisé.",
+    "paypalInstructions": "Cliquez sur le bouton PayPal pour finaliser votre paiement en EUR.",
     "deliveredTo": "Livré à",
     "orderRefused": "Commande refusée",
     "paymentUnavailable": "Paiement indisponible",

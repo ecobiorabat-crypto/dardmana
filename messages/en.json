@@ -254,6 +254,7 @@
     "shippingTitle": "Shipping method",
     "reviewTitle": "Review",
     "stripeInstructions": "Enter your card details to complete the secure payment.",
+    "paypalInstructions": "Click the PayPal button to complete your payment in EUR.",
     "deliveredTo": "Delivered to",
     "orderRefused": "Order declined",
     "paymentUnavailable": "Payment unavailable",

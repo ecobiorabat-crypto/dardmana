@@ -254,6 +254,7 @@
     "shippingTitle": "طريقة التوصيل",
     "reviewTitle": "المراجعة",
     "stripeInstructions": "أدخل معلومات بطاقتك لإتمام الدفع الآمن.",
+    "paypalInstructions": "اضغط على زر PayPal لإتمام الدفع باليورو.",
     "deliveredTo": "يُسلَّم إلى",
     "orderRefused": "تم رفض الطلب",
     "paymentUnavailable": "الدفع غير متاح",

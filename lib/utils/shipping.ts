@@ -31,14 +31,19 @@ export const EU_COUNTRIES = [
 
 export const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
   MA: ['COD', 'CMI'],
-  EU: ['STRIPE'],
+  EU: ['STRIPE', 'PAYPAL'],
   DEFAULT: ['STRIPE', 'PAYPAL'],
 }
 
-const EUR_TO_MAD = 10.72
+export const EUR_TO_MAD = 10.72
 
 function eurToMad(eur: number): number {
   return Math.ceil(eur * EUR_TO_MAD)
+}
+
+/** Convertit un montant MAD en EUR (2 décimales) — utilisé par PayPal (MAD non supporté). */
+export function madToEur(mad: number): number {
+  return Math.round((mad / EUR_TO_MAD) * 100) / 100
 }
 
 function getRegion(country: string): 'MA' | 'EU' | 'WORLD' {
