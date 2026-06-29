@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCartStore } from '@/store/cart'
 import { formatMad } from '@/lib/utils/price'
@@ -19,6 +19,11 @@ export function PromoCodeInput({ subtotal }: { subtotal: number }) {
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Ne se rend qu'après hydratation client → le onClick est toujours attaché
+  // (évite le bug où « Appliquer » n'envoyait aucune requête en production).
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const apply = async () => {
     const trimmed = code.trim()
@@ -56,6 +61,9 @@ export function PromoCodeInput({ subtotal }: { subtotal: number }) {
     setError(null)
     setCode('')
   }
+
+  // Placeholder de même hauteur pendant l'hydratation (évite le layout shift).
+  if (!mounted) return <div className="h-16" />
 
   if (appliedPromo) {
     return (

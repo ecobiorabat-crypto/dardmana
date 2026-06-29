@@ -10,8 +10,11 @@ const PromoSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const parsed = PromoSchema.safeParse(await request.json())
+    const raw = await request.json()
+    console.log('[PROMO] Body reçu:', raw)
+    const parsed = PromoSchema.safeParse(raw)
     if (!parsed.success) {
+      console.log('[PROMO] Erreur Zod:', JSON.stringify(parsed.error.flatten()))
       return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
     }
     const body = parsed.data
@@ -19,12 +22,14 @@ export async function POST(request: NextRequest) {
     const promo = await prisma.promoCode.findUnique({
       where: { code: body.code.toUpperCase() },
     })
+    console.log('[PROMO] Code trouvé:', promo)
 
     if (!promo) {
       return NextResponse.json({ valid: false, message: 'Code promo invalide' })
     }
 
     const result = applyPromoCode(body.subtotal, promo)
+    console.log('[PROMO] Résultat:', result)
 
     if (result.error) {
       return NextResponse.json({ valid: false, message: result.error })
