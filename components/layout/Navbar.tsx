@@ -47,7 +47,7 @@ function IconButton({
   count?: number
 }) {
   const className = cn(
-    'relative inline-flex h-10 w-10 items-center justify-center text-current',
+    'relative inline-flex h-11 w-11 items-center justify-center text-current',
     'transition-opacity duration-200 hover:opacity-70',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--or-royal)] focus-visible:ring-offset-2',
   )
@@ -117,7 +117,7 @@ export function Navbar({ siteName, navConfig = DEFAULT_NAV_CONFIG }: NavbarProps
             type="button"
             onClick={() => setMobileMenuOpen(true)}
             aria-label={t('Nav.menu')}
-            className="inline-flex h-10 w-10 items-center justify-center text-current transition-opacity hover:opacity-70 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--or-royal)]"
+            className="inline-flex h-11 w-11 items-center justify-center text-current transition-opacity hover:opacity-70 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--or-royal)]"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

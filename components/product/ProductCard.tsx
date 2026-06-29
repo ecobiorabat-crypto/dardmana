@@ -109,7 +109,7 @@ export function ProductCard({ product, className, priority = false }: ProductCar
           aria-label={inWishlist ? t('Products.removeFromWishlist') : t('Common.addToWishlist')}
           aria-pressed={inWishlist}
           className={cn(
-            'absolute end-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full',
+            'absolute end-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full',
             'bg-[var(--creme)]/85 backdrop-blur-sm transition-colors duration-200',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--or-royal)]',
             inWishlist ? 'text-[var(--erreur)]' : 'text-[var(--texte)] hover:text-[var(--erreur)]',

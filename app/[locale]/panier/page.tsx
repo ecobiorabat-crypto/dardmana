@@ -218,7 +218,7 @@ export default function CartPage() {
                         type="button"
                         onClick={() => removeItem(item.productId, item.variantId)}
                         aria-label={`${t('Cart.remove')} ${item.name}`}
-                        className="text-[var(--texte-doux)] transition-colors hover:text-[var(--erreur)]"
+                        className="-me-2 inline-flex h-11 w-11 shrink-0 items-center justify-center text-[var(--texte-doux)] transition-colors hover:text-[var(--erreur)]"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                           <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -232,7 +232,7 @@ export default function CartPage() {
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
                           aria-label={t('Cart.decrease')}
-                          className="flex h-9 w-9 items-center justify-center hover:text-[var(--vert-fonce)]"
+                          className="flex h-11 w-11 items-center justify-center hover:text-[var(--vert-fonce)]"
                         >
                           −
                         </button>
@@ -241,7 +241,7 @@ export default function CartPage() {
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
                           aria-label={t('Cart.increase')}
-                          className="flex h-9 w-9 items-center justify-center hover:text-[var(--vert-fonce)]"
+                          className="flex h-11 w-11 items-center justify-center hover:text-[var(--vert-fonce)]"
                         >
                           +
                         </button>

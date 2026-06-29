@@ -70,8 +70,15 @@
 
 }
 
+/* Fond crème dès le 1er paint (html + body) pour éviter le flash blanc au
+   chargement et pendant les transitions de route. Les cartes/sections gardent
+   leur propre fond (var(--blanc) via bg-background). */
+html {
+  background-color: #faf6ef;
+}
+
 body {
-  background: var(--background);
+  background: #faf6ef;
   color: var(--foreground);
   font-family: var(--font-corps);
   -webkit-font-smoothing: antialiased;

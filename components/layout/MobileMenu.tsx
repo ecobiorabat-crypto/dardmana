@@ -85,7 +85,7 @@ export function MobileMenu({ navConfig = DEFAULT_NAV_CONFIG }: { navConfig?: Nav
                 type="button"
                 onClick={close}
                 aria-label={t('Common.close')}
-                className="text-[var(--texte-doux)] transition-colors hover:text-[var(--vert-fonce)]"
+                className="-me-2.5 inline-flex h-11 w-11 items-center justify-center text-[var(--texte-doux)] transition-colors hover:text-[var(--vert-fonce)]"
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

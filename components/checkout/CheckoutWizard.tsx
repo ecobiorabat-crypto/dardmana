@@ -333,7 +333,7 @@ export function CheckoutWizard() {
                 </div>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <Input label={t('Checkout.email')} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} required />
-                  <Input label={t('Checkout.phone')} value={form.phone} onChange={(e) => set('phone', e.target.value)} required />
+                  <Input label={t('Checkout.phone')} type="tel" inputMode="tel" autoComplete="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} required />
                 </div>
                 <Input label={t('Checkout.address')} value={form.addressLine1} onChange={(e) => set('addressLine1', e.target.value)} required />
                 <Input label={`${t('Checkout.addressLine2')} (${t('Common.optional')})`} value={form.addressLine2} onChange={(e) => set('addressLine2', e.target.value)} />
