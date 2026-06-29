@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        // Le feed catalogue Meta reste accessible malgré le blocage global de /api/.
+        allow: ['/', '/api/meta/catalog'],
         disallow: [
           '/admin/',
           '/api/',

@@ -135,8 +135,10 @@ export function trackPurchase(order: AnalyticsOrder): void {
   fbq('track', 'Purchase', {
     content_ids: order.items.map((i) => i.id),
     content_type: 'product',
+    num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
     value: order.total,
     currency: CURRENCY,
+    order_id: order.orderNumber,
   })
   gtag('event', 'purchase', {
     transaction_id: order.orderNumber,

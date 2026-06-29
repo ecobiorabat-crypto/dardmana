@@ -184,6 +184,9 @@ export default async function ProductPage({
       <meta property="og:price:currency" content="MAD" />
       <meta property="product:price:amount" content={String(Number(product.priceMad))} />
       <meta property="product:price:currency" content="MAD" />
+      <meta property="product:availability" content={product.stock > 0 ? 'in stock' : 'out of stock'} />
+      <meta property="product:condition" content="new" />
+      <meta property="product:brand" content="Dar Dmana" />
 
       {/* Breadcrumb */}
       <nav aria-label={t('Common.breadcrumb')} className="mb-8 text-xs text-[var(--texte-doux)]">
