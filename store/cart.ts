@@ -15,6 +15,7 @@ export interface CartItem {
 export interface AppliedPromo {
   code: string
   discount: number
+  type?: string
   message: string
 }
 

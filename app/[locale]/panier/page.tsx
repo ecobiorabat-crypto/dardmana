@@ -8,7 +8,7 @@ import { useCartStore } from '@/store/cart'
 import { useUiStore } from '@/store/ui'
 import { ProductCard } from '@/components/product/ProductCard'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { PromoCodeInput } from '@/components/cart/PromoCodeInput'
 import { useHydrated } from '@/components/layout/hooks'
 import { formatMad } from '@/lib/utils/price'
 import { getShippingMethods, getFreeShippingThreshold } from '@/lib/utils/shipping'
@@ -44,15 +44,10 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem)
   const addItem = useCartStore((s) => s.addItem)
   const appliedPromo = useCartStore((s) => s.appliedPromo)
-  const setPromo = useCartStore((s) => s.setPromo)
-  const clearPromo = useCartStore((s) => s.clearPromo)
   const showToast = useUiStore((s) => s.showToast)
 
   const [suggested, setSuggested] = useState<ProductCardData[]>([])
   const [complementary, setComplementary] = useState<ProductCardData[]>([])
-  const [promoCode, setPromoCode] = useState('')
-  const [promoError, setPromoError] = useState<string | null>(null)
-  const [promoLoading, setPromoLoading] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -139,37 +134,6 @@ export default function CartPage() {
   const total = afterDiscount + shippingCost
   const freeThreshold = getFreeShippingThreshold('MA') ?? 0
   const remainingForFree = Math.max(0, freeThreshold - afterDiscount)
-
-  const applyPromo = async () => {
-    if (!promoCode.trim()) return
-    setPromoLoading(true)
-    setPromoError(null)
-    try {
-      const res = await fetch('/api/promo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoCode.trim(), subtotal }),
-      })
-      const data = await res.json()
-      if (data.valid) {
-        setPromo({ code: promoCode.trim().toUpperCase(), discount: data.discount ?? 0, message: data.message })
-        setPromoCode('')
-      } else {
-        clearPromo()
-        setPromoError(data.message ?? t('Cart.promoInvalid'))
-      }
-    } catch {
-      setPromoError(t('Checkout.errorGeneric'))
-    } finally {
-      setPromoLoading(false)
-    }
-  }
-
-  const removePromo = () => {
-    clearPromo()
-    setPromoError(null)
-    setPromoCode('')
-  }
 
   if (hydrated && items.length === 0) {
     return (
@@ -273,41 +237,9 @@ export default function CartPage() {
               </p>
             )}
 
-            {/* Promo */}
+            {/* Code promo */}
             <div className="mt-5">
-              {hydrated && appliedPromo ? (
-                <div className="flex items-center justify-between gap-3 border border-[var(--vert-moyen)]/40 bg-[var(--vert-moyen)]/5 px-3 py-2.5">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-[var(--vert-moyen)]">
-                      {appliedPromo.code} · −{formatMad(appliedPromo.discount)}
-                    </p>
-                    <p className="truncate text-xs text-[var(--texte-doux)]">{appliedPromo.message}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removePromo}
-                    className="shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-[var(--erreur)] hover:underline"
-                  >
-                    {t('Cart.removePromo')}
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex gap-2">
-                    <Input
-                      label={t('Cart.promoCode')}
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
-                      containerClassName="flex-1"
-                    />
-                    <Button variant="outline" size="md" loading={promoLoading} onClick={applyPromo}>
-                      {t('Cart.apply')}
-                    </Button>
-                  </div>
-                  {promoError && <p className="mt-1.5 text-xs text-[var(--erreur)]">{promoError}</p>}
-                </>
-              )}
+              <PromoCodeInput subtotal={subtotal} />
             </div>
 
             <dl className="mt-6 space-y-3 border-t border-[var(--bordure)] pt-5 text-sm">

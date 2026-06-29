@@ -18,9 +18,11 @@ interface CODItem {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('[COD] Body reçu:', JSON.stringify(body))
     const parsed = CODFormSchema.safeParse(body)
 
     if (!parsed.success) {
+      console.log('[COD] Erreur Zod:', JSON.stringify(parsed.error.flatten()))
       return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
     }
 

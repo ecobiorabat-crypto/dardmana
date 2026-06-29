@@ -59,6 +59,18 @@ const STEP_KEYS = [
   'Checkout.stepConfirmation',
 ]
 
+/**
+ * Normalise un numéro de téléphone pour la validation serveur : conserve un
+ * éventuel « + » initial et les chiffres, supprime espaces, tirets, points,
+ * parenthèses. Évite les « Données invalides » quand le client saisit
+ * « 06 12 34 56 78 » ou « +212 6 12… ».
+ */
+function cleanPhone(phone: string): string {
+  const trimmed = phone.trim()
+  const prefix = trimmed.startsWith('+') ? '+' : ''
+  return prefix + trimmed.replace(/[^\d]/g, '')
+}
+
 interface FormState {
   firstName: string
   lastName: string
@@ -198,7 +210,7 @@ export function CheckoutWizard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         customerName: `${form.firstName} ${form.lastName}`.trim(),
-        customerPhone: form.phone,
+        customerPhone: cleanPhone(form.phone),
         customerEmail: form.email || undefined,
         addressLine1: form.addressLine1,
         addressLine2: form.addressLine2 || undefined,
@@ -220,11 +232,11 @@ export function CheckoutWizard() {
       body: JSON.stringify({
         customerName: `${form.firstName} ${form.lastName}`.trim(),
         customerEmail: form.email,
-        customerPhone: form.phone,
+        customerPhone: cleanPhone(form.phone),
         shippingAddress: {
           label: 'Domicile',
           fullName: `${form.firstName} ${form.lastName}`.trim(),
-          phone: form.phone,
+          phone: cleanPhone(form.phone),
           addressLine1: form.addressLine1,
           addressLine2: form.addressLine2 || undefined,
           city: form.city,
