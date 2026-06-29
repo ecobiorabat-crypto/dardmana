@@ -1,17 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCartStore } from '@/store/cart'
+import { useHydrated } from '@/components/layout/hooks'
 import { formatMad } from '@/lib/utils/price'
 
 /**
  * Saisie de code promo (panier). Applique via POST /api/promo, stocke le résultat
- * dans le store cart (appliedPromo) pour transmission au checkout. Affiche un
- * encart vert « −X MAD · CODE » + bouton Retirer si appliqué, sinon le champ.
+ * dans le store cart (appliedPromo) pour transmission au checkout.
+ *
+ * Hydratation : le champ est TOUJOURS rendu (visible immédiatement, SSR + client),
+ * donc l'onClick est rattaché dès l'hydratation. L'encart « appliqué » (vert) ne
+ * s'affiche qu'après hydratation (`useHydrated`) car appliedPromo vient du store
+ * persisté → évite tout mismatch SSR↔client (qui cassait l'hydratation et rendait
+ * le bouton inopérant / le composant invisible).
  */
 export function PromoCodeInput({ subtotal }: { subtotal: number }) {
   const t = useTranslations('Cart')
+  const hydrated = useHydrated()
   const appliedPromo = useCartStore((s) => s.appliedPromo)
   const setPromo = useCartStore((s) => s.setPromo)
   const clearPromo = useCartStore((s) => s.clearPromo)
@@ -19,11 +26,6 @@ export function PromoCodeInput({ subtotal }: { subtotal: number }) {
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  // Ne se rend qu'après hydratation client → le onClick est toujours attaché
-  // (évite le bug où « Appliquer » n'envoyait aucune requête en production).
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const apply = async () => {
     const trimmed = code.trim()
@@ -62,10 +64,8 @@ export function PromoCodeInput({ subtotal }: { subtotal: number }) {
     setCode('')
   }
 
-  // Placeholder de même hauteur pendant l'hydratation (évite le layout shift).
-  if (!mounted) return <div className="h-16" />
-
-  if (appliedPromo) {
+  // Encart « appliqué » uniquement après hydratation (état persisté).
+  if (hydrated && appliedPromo) {
     return (
       <div className="flex items-center justify-between gap-3 rounded-md border border-[var(--vert-moyen)]/50 bg-[var(--vert-moyen)]/5 px-3 py-2.5">
         <div className="min-w-0">
@@ -87,6 +87,7 @@ export function PromoCodeInput({ subtotal }: { subtotal: number }) {
     )
   }
 
+  // Champ de saisie — toujours rendu (SSR + client), donc visible et interactif.
   return (
     <div>
       <label htmlFor="promo-code" className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-[var(--texte-doux)]">

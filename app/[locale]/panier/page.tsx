@@ -129,7 +129,8 @@ export default function CartPage() {
   // Garde hydratation : SSR et 1er rendu client calculent 0 (store non hydraté)
   // → pas de mismatch → React hydrate correctement le sous-arbre (bouton promo).
   const subtotal = hydrated ? items.reduce((sum, i) => sum + i.priceMad * i.quantity, 0) : 0
-  const discount = appliedPromo?.discount ?? 0
+  // Gardé aussi : appliedPromo vient du store persisté (mismatch SSR↔client sinon).
+  const discount = hydrated ? (appliedPromo?.discount ?? 0) : 0
   const afterDiscount = Math.max(0, subtotal - discount)
   const shipping = getShippingMethods('MA', afterDiscount)[0]
   const shippingCost = shipping?.priceMad ?? 0
