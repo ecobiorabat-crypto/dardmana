@@ -9,6 +9,9 @@ cloudinary.config({
 
 export { cloudinary }
 
+// Transformation d'URL (module client-safe) ré-exportée pour usage serveur.
+export { optimizeCloudinaryUrl, type CloudinaryOptimizeOptions } from '@/lib/cloudinary-url'
+
 export async function uploadImage(
   file: string,
   folder: string

@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing'
 import { prisma } from '@/lib/prisma'
 import { getSiteSettings } from '@/lib/settings'
 import { getHomepageSettings } from '@/lib/homepage'
+import { optimizeCloudinaryUrl } from '@/lib/cloudinary-url'
 import { pickLocale } from '@/lib/cms'
 import { AnnouncementBar } from '@/components/layout/AnnouncementBar'
 import { Navbar } from '@/components/layout/Navbar'
@@ -112,8 +113,18 @@ export default async function LocaleLayout({
   const limitedMsg = limitedCount > 0 ? t('Announcement.limitedEditions', { count: limitedCount }) : null
   const showAnnouncement = Boolean(limitedMsg) || homepage.announcementActive
 
+  // Préchargement de la 1re image du Hero (améliore le LCP / PageSpeed).
+  const heroFirst = homepage.heroSlides[0]
+  const heroImg = heroFirst
+    ? (locale === 'ar' ? heroFirst.imageAr || heroFirst.imageFr : heroFirst.imageFr || heroFirst.imageAr)
+    : ''
+  const heroPreloadSrc = heroImg ? optimizeCloudinaryUrl(heroImg, { width: 1920 }) : null
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      {heroPreloadSrc && (
+        <link rel="preload" as="image" href={heroPreloadSrc} fetchPriority="high" />
+      )}
       <div lang={locale} dir={dir} className="flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-[100]">
           {showAnnouncement && (

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCurrentLocale } from '@/components/layout/nav'
 import { cn } from '@/lib/utils/cn'
+import { optimizeCloudinaryUrl } from '@/lib/cloudinary-url'
 import type { HeroSlide } from '@/lib/homepage'
 
 const AUTOPLAY_MS = 5000
@@ -55,11 +56,18 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         >
           {image ? (
             <Image
-              src={image}
+              src={optimizeCloudinaryUrl(image, { width: 1920 })}
               alt={slide.titleFr || slide.titleAr || 'Dar Dmana'}
               fill
-              priority={index === 0}
               sizes="100vw"
+              quality={85}
+              placeholder="empty"
+              // Cloudinary optimise déjà (f_auto/q_auto/w_1920) : on évite le double
+              // ré-encodage par l'optimiseur Next et on garde l'URL brute, qui
+              // correspond exactement au <link rel=preload> du layout (LCP réel).
+              unoptimized
+              // Premier slide : priorité (LCP). Slides suivants : chargement paresseux.
+              {...(index === 0 ? { priority: true } : { loading: 'lazy' as const })}
               className="object-cover"
             />
           ) : (

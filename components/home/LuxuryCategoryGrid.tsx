@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { localizedHref, useCurrentLocale } from '@/components/layout/nav'
+import { optimizeCloudinaryUrl } from '@/lib/cloudinary-url'
 import type { CategoryGridTile } from '@/lib/homepage'
 
 /** Grille luxe de 4 tuiles catégories (2×2 mobile, 4 colonnes desktop). */
@@ -28,11 +29,16 @@ export function LuxuryCategoryGrid({ tiles }: { tiles: CategoryGridTile[] }) {
               >
                 {img ? (
                   <Image
-                    src={img}
+                    src={optimizeCloudinaryUrl(img, { width: 800 })}
                     alt={title}
                     fill
-                    sizes="(max-width: 1024px) 50vw, 25vw"
-                    priority={i === 0}
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    quality={85}
+                    placeholder="empty"
+                    // Cloudinary optimise déjà (f_auto/q_auto/w_800) : on sert l'URL
+                    // brute sans ré-encodage par l'optimiseur Next.
+                    unoptimized
+                    {...(i === 0 ? { priority: true } : { loading: 'lazy' as const })}
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
