@@ -1,4 +1,4 @@
-import { resend } from '@/lib/resend'
+import { sendEmail } from '@/lib/resend'
 
 /** Forme minimale d'une commande nécessaire pour la notification admin. */
 export interface AdminNotifyOrder {
@@ -12,7 +12,6 @@ export interface AdminNotifyOrder {
   orderItems: { productName: string; quantity: number }[]
 }
 
-const FROM = 'Dar Dmana System <no-reply@dardmana.ma>'
 const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma').replace(/\/$/, '')
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -80,13 +79,13 @@ export async function notifyAdminEmail(order: AdminNotifyOrder): Promise<void> {
   </div>
 </body></html>`
 
-    await resend.emails.send({
-      from: FROM,
+    await sendEmail({
       to: [adminEmail],
       subject: `🛒 Nouvelle commande ${order.orderNumber} — ${total} MAD`,
       html,
+      type: 'admin_order_notification',
+      orderId: order.orderId,
     })
-    console.log(`[notifyAdminEmail] Email envoyé à ${adminEmail} pour ${order.orderNumber}`)
   } catch (err) {
     console.error('[notifyAdminEmail] échec (non bloquant):', err)
   }

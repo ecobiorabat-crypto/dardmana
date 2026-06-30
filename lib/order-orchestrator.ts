@@ -288,6 +288,7 @@ export class OrderOrchestrator {
   private buildEmailOrder(order: OrderWithItems): EmailOrder {
     const addr = order.shippingAddress as StoredAddress | null
     return {
+      orderId: order.id,
       orderNumber: order.orderNumber,
       customerName: order.customerName,
       customerEmail: order.customerEmail,

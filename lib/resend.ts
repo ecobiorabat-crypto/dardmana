@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { prisma } from '@/lib/prisma'
 
 let _resend: Resend | undefined
 
@@ -17,8 +18,75 @@ export const resend = new Proxy({} as Resend, {
   },
 })
 
-const FROM = 'Dar Dmana <no-reply@dardmana.ma>'
+// Expéditeur configurable (le domaine doit être vérifié dans Resend).
+const FROM = process.env.EMAIL_FROM ?? 'Dar Dmana <no-reply@dardmana.ma>'
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://dardmana.ma'
+
+// ─── Envoi centralisé (gestion d'erreur + journalisation) ──────────────────────
+
+export interface SendEmailParams {
+  to: string[]
+  subject: string
+  html: string
+  /** Identifiant du type d'email (ex. 'order_confirmation') pour NotificationLog. */
+  type: string
+  orderId?: string
+  customerId?: string
+}
+
+/** Journalise un envoi dans NotificationLog (best-effort, ne lève jamais). */
+async function logNotification(
+  params: SendEmailParams,
+  recipient: string,
+  status: 'SENT' | 'FAILED',
+  errorMessage?: string,
+): Promise<void> {
+  try {
+    await prisma.notificationLog.create({
+      data: {
+        orderId: params.orderId ?? null,
+        customerId: params.customerId ?? null,
+        channel: 'EMAIL',
+        type: params.type,
+        recipient,
+        status,
+        errorMessage: errorMessage ?? null,
+        sentAt: status === 'SENT' ? new Date() : null,
+      },
+    })
+  } catch (err) {
+    console.error('[Resend] Écriture NotificationLog échouée:', err)
+  }
+}
+
+/**
+ * Envoi d'email centralisé. Remonte EXPLICITEMENT les erreurs Resend (qui sont
+ * renvoyées dans `{ error }` sans lever — ex. domaine non vérifié → 403 — donc
+ * autrement avalées silencieusement) : log console + NotificationLog FAILED.
+ * Best-effort : ne lève jamais (l'envoi d'email ne doit pas casser une commande).
+ */
+export async function sendEmail(params: SendEmailParams): Promise<void> {
+  const recipient = params.to.join(', ')
+  try {
+    const result = await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+    })
+    if (result.error) {
+      const msg = result.error.message ?? JSON.stringify(result.error)
+      console.error(`[Resend] Échec "${params.type}" → ${recipient}: ${msg}`)
+      await logNotification(params, recipient, 'FAILED', msg)
+    } else {
+      console.log(`[Resend] Email "${params.type}" envoyé → ${recipient} (id ${result.data?.id ?? '—'})`)
+      await logNotification(params, recipient, 'SENT')
+    }
+  } catch (err) {
+    console.error(`[Resend] Exception envoi "${params.type}" → ${recipient}:`, err)
+    await logNotification(params, recipient, 'FAILED', (err as Error).message)
+  }
+}
 
 // ─── Shared Types ────────────────────────────────────────────────────────────
 
@@ -37,6 +105,7 @@ export interface EmailAddress {
 }
 
 export interface EmailOrder {
+  orderId?: string
   orderNumber: string
   customerName: string
   customerEmail: string
@@ -167,11 +236,12 @@ export async function confirmOrder(order: EmailOrder, personalPromo?: PersonalPr
       <a href="${BASE_URL}/orders/${order.orderNumber}" style="display:inline-block;background:#c9a227;color:#1a0a00;padding:14px 32px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:bold;letter-spacing:1px;">Suivre ma commande</a>
     </div>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [order.customerEmail],
     subject: `✓ Commande confirmée — ${order.orderNumber} | Dar Dmana`,
     html: baseLayout(`Commande ${order.orderNumber}`, content),
+    type: 'order_confirmation',
+    orderId: order.orderId,
   })
 }
 
@@ -202,11 +272,12 @@ export async function orderShipped(order: EmailOrder, trackingNumber: string) {
       <a href="${BASE_URL}/orders/${order.orderNumber}" style="display:inline-block;background:#c9a227;color:#1a0a00;padding:14px 32px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:bold;letter-spacing:1px;">Suivre mon colis</a>
     </div>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [order.customerEmail],
     subject: `📦 En cours de livraison — ${order.orderNumber} | Dar Dmana`,
     html: baseLayout(`Expédition ${order.orderNumber}`, content),
+    type: 'order_shipped',
+    orderId: order.orderId,
   })
 }
 
@@ -229,11 +300,12 @@ export async function orderDelivered(order: EmailOrder) {
     <h3 style="color:#2c1810;font-size:16px;margin:0 0 12px;border-bottom:2px solid #c9a227;padding-bottom:8px;">Votre commande</h3>
     ${itemsTable(order.items)}`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [order.customerEmail],
     subject: `🎁 Livré — ${order.orderNumber} | Dar Dmana`,
     html: baseLayout(`Livraison ${order.orderNumber}`, content),
+    type: 'order_delivered',
+    orderId: order.orderId,
   })
 }
 
@@ -268,11 +340,11 @@ export async function welcomeCustomer(customer: EmailCustomer) {
       <a href="${BASE_URL}/boutique" style="display:inline-block;background:#c9a227;color:#1a0a00;padding:14px 32px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:bold;letter-spacing:1px;">Découvrir la boutique</a>
     </div>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [customer.email],
     subject: `Bienvenue chez Dar Dmana, ${customer.name} !`,
     html: baseLayout('Bienvenue', content),
+    type: 'welcome',
   })
 }
 
@@ -293,11 +365,11 @@ export async function resetPassword(email: string, resetUrl: string) {
 
     <p style="margin-top:20px;font-size:12px;color:#a09080;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br/><span style="color:#c9a227;word-break:break-all;">${resetUrl}</span></p>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [email],
     subject: 'Réinitialisation de votre mot de passe | Dar Dmana',
     html: baseLayout('Réinitialisation mot de passe', content),
+    type: 'password_reset',
   })
 }
 
@@ -318,11 +390,11 @@ export async function adminInviteEmail(input: { name: string; email: string; set
 
     <p style="margin-top:20px;font-size:12px;color:#a09080;">Lien direct :<br/><span style="color:#c9a227;word-break:break-all;">${input.setupUrl}</span></p>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [input.email],
     subject: 'Invitation administration | Dar Dmana',
     html: baseLayout('Invitation admin', content),
+    type: 'admin_invite',
   })
 }
 
@@ -347,11 +419,11 @@ export async function adminTempPasswordEmail(input: {
       <a href="${input.loginUrl}" style="display:inline-block;background:#c9a227;color:#1a0a00;padding:14px 32px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:bold;letter-spacing:1px;">Se connecter</a>
     </div>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [input.email],
     subject: 'Accès administration | Dar Dmana',
     html: baseLayout('Accès admin', content),
+    type: 'admin_temp_password',
   })
 }
 
@@ -395,12 +467,12 @@ export async function abandonedCartReminder(input: AbandonedCartEmailInput) {
       <a href="${input.recoverUrl}" style="display:inline-block;background:#c9a227;color:#1a0a00;padding:14px 32px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:bold;letter-spacing:1px;">Reprendre ma commande</a>
     </div>`
 
-  return resend.emails.send({
-    from: FROM,
+  return sendEmail({
     to: [input.email],
     subject: input.promoCode
       ? `🎁 -${input.promoPercent ?? 10}% sur votre panier | Dar Dmana`
       : 'Vous avez oublié quelque chose ! | Dar Dmana',
     html: baseLayout('Votre panier vous attend', content),
+    type: 'abandoned_cart',
   })
 }
