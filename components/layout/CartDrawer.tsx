@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl'
 import { useCartStore } from '@/store/cart'
 import { Drawer } from '@/components/ui/Drawer'
 import { Button } from '@/components/ui/Button'
+import { PromoCodeInput } from '@/components/cart/PromoCodeInput'
+import { useHydrated } from '@/components/layout/hooks'
 import { formatMad } from '@/lib/utils/price'
 import { localizedHref, useCurrentLocale } from './nav'
 import { cn } from '@/lib/utils/cn'
@@ -46,8 +48,12 @@ export function CartDrawer() {
   const items = useCartStore((s) => s.items)
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
+  const appliedPromo = useCartStore((s) => s.appliedPromo)
+  const hydrated = useHydrated()
 
-  const total = items.reduce((sum, i) => sum + i.priceMad * i.quantity, 0)
+  const subtotal = items.reduce((sum, i) => sum + i.priceMad * i.quantity, 0)
+  const discount = hydrated ? (appliedPromo?.discount ?? 0) : 0
+  const total = Math.max(0, subtotal - discount)
   const count = items.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
@@ -126,6 +132,17 @@ export function CartDrawer() {
           </ul>
 
           <div className="border-t border-[var(--bordure)] pt-4">
+            {/* Code promo — saisissable directement dans le panier latéral. */}
+            <div className="mb-4">
+              <PromoCodeInput subtotal={subtotal} />
+            </div>
+
+            {discount > 0 && (
+              <div className="mb-2 flex items-center justify-between text-sm text-[var(--vert-moyen)]">
+                <span>{t('Cart.discount')}</span>
+                <span>−{formatMad(discount)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-sm uppercase tracking-[0.14em] text-[var(--texte-doux)]">{t('Cart.total')}</span>
               <span className="font-titre text-2xl text-[var(--vert-fonce)]">{formatMad(total)}</span>

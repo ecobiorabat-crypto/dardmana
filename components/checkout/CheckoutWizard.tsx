@@ -11,6 +11,7 @@ import { trackBeginCheckout } from '@/lib/analytics/events'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { OrderSummary } from '@/components/checkout/OrderSummary'
+import { PromoCodeInput } from '@/components/cart/PromoCodeInput'
 import { formatMad } from '@/lib/utils/price'
 
 // Chargement différé du module Stripe (lourd) : il n'est requis qu'à l'étape
@@ -556,6 +557,10 @@ export function CheckoutWizard() {
           total={total}
           discount={discount}
         />
+        {/* Code promo — saisissable/modifiable pendant le paiement. */}
+        <div className="mt-4 border border-[var(--bordure)] bg-[var(--creme)] p-5">
+          <PromoCodeInput subtotal={subtotal} />
+        </div>
       </aside>
     </div>
   )
