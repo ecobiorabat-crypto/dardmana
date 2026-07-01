@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { StatusBadge, PaymentBadge } from '@/components/admin/ui'
 import { formatMad } from '@/lib/utils/price'
+import { normalizePhone } from '@/lib/utils/phone'
 import { trackingUrl } from '@/lib/utils/order-status'
 import { updateOrderAction, cancelOrderAction, refundOrderAction } from '@/app/admin/(panel)/actions'
 import { DeleteOrderButton } from '@/components/admin/commandes/DeleteOrderButton'
@@ -112,7 +113,9 @@ export function OrderDetailAdmin({ order, canDelete = false }: { order: AdminOrd
   const track = order.trackingNumber ? trackingUrl(order.carrier, order.trackingNumber) : null
 
   // ── WhatsApp manuel (sans API : ouvre wa.me directement) ──
-  const waPhone = order.customerPhone.replace(/\D/g, '')
+  // wa.me exige le format international SANS « + » ni « 00 » ni « 0 » initial
+  // (ex : 212612345678). normalizePhone → +212… ; on retire le « + ».
+  const waPhone = normalizePhone(order.customerPhone).replace('+', '')
   const openWhatsApp = (message: string) => {
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
   }

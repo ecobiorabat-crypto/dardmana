@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { CheckoutFormSchema } from '@/lib/validations/order'
 import { orderOrchestrator } from '@/lib/order-orchestrator'
+import { findOrCreateCustomerByPhone } from '@/lib/customer'
 import { applyPromoCode } from '@/lib/utils/price'
 import { calculateShipping } from '@/lib/utils/price'
 import type { Prisma, PaymentMethod } from '@prisma/client'
@@ -103,6 +104,21 @@ export async function POST(request: NextRequest) {
     if (user) {
       const customer = await prisma.customer.findUnique({ where: { authUserId: user.id }, select: { id: true } })
       customerId = customer?.id ?? null
+    }
+    // Invité (non connecté) : lie ou crée le Customer par téléphone.
+    if (!customerId) {
+      customerId = await findOrCreateCustomerByPhone(prisma, {
+        name: data.customerName,
+        phone: data.customerPhone,
+        email: data.customerEmail,
+        country: data.shippingAddress.country,
+        totalMad,
+        addressLine1: data.shippingAddress.addressLine1,
+        city: data.shippingAddress.city,
+      }).catch((err) => {
+        console.error('[POST /api/orders] Liaison Customer échouée (non bloquant):', err)
+        return null
+      })
     }
 
     // Snapshot items for the order JSON field

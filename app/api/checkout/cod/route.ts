@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { CODFormSchema } from '@/lib/validations/order'
 import { orderOrchestrator } from '@/lib/order-orchestrator'
+import { findOrCreateCustomerByPhone } from '@/lib/customer'
 import { calculateShipping, applyPromoCode } from '@/lib/utils/price'
 import type { Prisma } from '@prisma/client'
 
@@ -124,9 +125,24 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Lie ou crée le Customer par téléphone (comme /api/admin/orders).
+    const customerId = await findOrCreateCustomerByPhone(prisma, {
+      name: data.customerName,
+      phone: data.customerPhone,
+      email: data.customerEmail || null,
+      country: 'MA',
+      totalMad,
+      addressLine1: data.addressLine1,
+      city: data.city,
+    }).catch((err) => {
+      console.error('[COD] Liaison Customer échouée (non bloquant):', err)
+      return null
+    })
+
     const order = await prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(),
+        customerId,
         customerName: data.customerName,
         customerEmail: data.customerEmail ?? `cod-${Date.now()}@dardmana.internal`,
         customerPhone: data.customerPhone,

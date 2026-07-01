@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { constructWebhookEvent } from '@/lib/stripe/server'
 import { prisma } from '@/lib/prisma'
 import { orderOrchestrator } from '@/lib/order-orchestrator'
+import { findOrCreateCustomerByPhone } from '@/lib/customer'
 
 export async function POST(request: NextRequest) {
   let body: string
@@ -41,6 +42,27 @@ export async function POST(request: NextRequest) {
               stripePaymentIntent: pi.id,
             },
           })
+
+          // Filet de sécurité : lie un Customer si l'order n'en a pas encore.
+          const ord = await prisma.order.findUnique({
+            where: { id: orderId },
+            select: { customerId: true, customerName: true, customerPhone: true, customerEmail: true, totalMad: true, shippingAddress: true },
+          })
+          if (ord && !ord.customerId && ord.customerPhone) {
+            const addr = (ord.shippingAddress ?? {}) as { addressLine1?: string; city?: string; country?: string }
+            const customerId = await findOrCreateCustomerByPhone(prisma, {
+              name: ord.customerName,
+              phone: ord.customerPhone,
+              email: ord.customerEmail,
+              country: addr.country,
+              totalMad: Number(ord.totalMad),
+              addressLine1: addr.addressLine1,
+              city: addr.city,
+            }).catch(() => null)
+            if (customerId) {
+              await prisma.order.update({ where: { id: orderId }, data: { customerId } })
+            }
+          }
 
           await prisma.payment.create({
             data: {
